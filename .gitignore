@@ -1,0 +1,65 @@
+# Unity generated / machine-local folders
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+
+# NOTE: /Builds/ is intentionally NOT ignored - build output is tracked in this
+# repo by explicit request. Build binaries are routed through Git LFS via
+# .gitattributes so they do not bloat the packfile.
+
+# Asset Store / Plastic leftovers
+/[Aa]ssets/AssetStoreTools*
+/[Aa]ssets/Plugins/Editor/JetBrains*
+/[Aa]ssets/Plugins/PlasticSCM*
+
+# Addressables build artifacts
+/[Aa]ssets/AddressableAssetsData/*/*.bin*
+/[Aa]ssets/[Ss]treamingAssets/aa.meta
+/[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# IDE / editor
+.vs/
+.vscode/
+.idea/
+.consulo/
+.gradle/
+*.csproj
+*.unityproj
+*.sln
+*.slnx
+*.suo
+*.user
+*.userprefs
+*.tmp
+*.pidb
+*.pidb.meta
+*.booproj
+*.svd
+*.pdb
+*.pdb.meta
+*.mdb
+*.mdb.meta
+*.opendb
+*.VC.db
+ExportedObj/
+
+# Unity3D generated crash / info files
+sysinfo.txt
+crashlytics-build.properties
+*.unitypackage
+~UnityDirMonSyncFile~*
+
+# "private" convention from the original ignore.conf
+*.private
+*.private.meta
+*.private.[0-9]*
+*.private.[0-9]*.meta
+
+# OS cruft
+.DS_Store*
+Thumbs.db
+Desktop.ini
