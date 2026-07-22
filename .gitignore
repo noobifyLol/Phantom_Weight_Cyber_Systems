@@ -11,6 +11,11 @@
 # repo by explicit request. Build binaries are routed through Git LFS via
 # .gitattributes so they do not bloat the packfile.
 
+# Unity Version Control (Plastic) local workspace state - machine-specific,
+# must never be tracked by Git. The workspace itself is authoritative on the
+# Plastic server, not here.
+/.plastic/
+
 # Asset Store / Plastic leftovers
 /[Aa]ssets/AssetStoreTools*
 /[Aa]ssets/Plugins/Editor/JetBrains*

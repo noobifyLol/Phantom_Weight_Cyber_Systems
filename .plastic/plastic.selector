@@ -1,4 +1,0 @@
-repository "Phantom Weight/UMD CSPE@2475917148595@cloud"
-  path "/"
-    br "/main"
-    co "/main"
