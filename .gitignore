@@ -7,9 +7,16 @@
 /[Mm]emoryCaptures/
 /[Rr]ecordings/
 
-# NOTE: /Builds/ is intentionally NOT ignored - build output is tracked in this
-# repo by explicit request. Build binaries are routed through Git LFS via
-# .gitattributes so they do not bloat the packfile.
+# Build output and Android/IL2CPP build cache - regenerated every build and
+# far too large for version control (a single Quest build is ~1.3 GB, most of
+# it il2cpp intermediate C++). Ignored by decision after real builds appeared.
+/[Bb]uilds/
+/.utmp/
+*_BackUpThisFolder_ButDontShipItWithYourGame/
+
+# Performance Test Framework run artifacts - regenerated on each test/build run
+/[Aa]ssets/[Rr]esources/PerformanceTestRun*.json
+/[Aa]ssets/[Rr]esources/PerformanceTestRun*.json.meta
 
 # Unity Version Control (Plastic) local workspace state - machine-specific,
 # must never be tracked by Git. The workspace itself is authoritative on the
