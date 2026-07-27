@@ -1,0 +1,336 @@
+﻿<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+ <html xmlns:msxsl="urn:schemas-microsoft-com:xslt"><head><meta content="en-us" http-equiv="Content-Language" /><meta content="text/html; charset=utf-16" http-equiv="Content-Type" /><title _locID="ConversionReport0">
+          Migration Report
+        </title><style> 
+                    /* Body style, for the entire document */
+                    body
+                    {
+                        background: #F3F3F4;
+                        color: #1E1E1F;
+                        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                        padding: 0;
+                        margin: 0;
+                    }
+
+                    /* Header1 style, used for the main title */
+                    h1
+                    {
+                        padding: 10px 0px 10px 10px;
+                        font-size: 21pt;
+                        background-color: #E2E2E2;
+                        border-bottom: 1px #C1C1C2 solid; 
+                        color: #201F20;
+                        margin: 0;
+                        font-weight: normal;
+                    }
+
+                    /* Header2 style, used for "Overview" and other sections */
+                    h2
+                    {
+                        font-size: 18pt;
+                        font-weight: normal;
+                        padding: 15px 0 5px 0;
+                        margin: 0;
+                    }
+
+                    /* Header3 style, used for sub-sections, such as project name */
+                    h3
+                    {
+                        font-weight: normal;
+                        font-size: 15pt;
+                        margin: 0;
+                        padding: 15px 0 5px 0;
+                        background-color: transparent;
+                    }
+
+                    /* Color all hyperlinks one color */
+                    a
+                    {
+                        color: #1382CE;
+                    }
+
+                    /* Table styles */ 
+                    table
+                    {
+                        border-spacing: 0 0;
+                        border-collapse: collapse;
+                        font-size: 10pt;
+                    }
+
+                    table th
+                    {
+                        background: #E7E7E8;
+                        text-align: left;
+                        text-decoration: none;
+                        font-weight: normal;
+                        padding: 3px 6px 3px 6px;
+                    }
+
+                    table td
+                    {
+                        vertical-align: top;
+                        padding: 3px 6px 5px 5px;
+                        margin: 0px;
+                        border: 1px solid #E7E7E8;
+                        background: #F7F7F8;
+                    }
+
+                    /* Local link is a style for hyperlinks that link to file:/// content, there are lots so color them as 'normal' text until the user mouse overs */
+                    .localLink
+                    {
+                        color: #1E1E1F;
+                        background: #EEEEED;
+                        text-decoration: none;
+                    }
+
+                    .localLink:hover
+                    {
+                        color: #1382CE;
+                        background: #FFFF99;
+                        text-decoration: none;
+                    }
+
+                    /* Center text, used in the over views cells that contain message level counts */ 
+                    .textCentered
+                    {
+                        text-align: center;
+                    }
+
+                    /* The message cells in message tables should take up all avaliable space */
+                    .messageCell
+                    {
+                        width: 100%;
+                    }
+
+                    /* Padding around the content after the h1 */ 
+                    #content 
+                    {
+	                    padding: 0px 12px 12px 12px; 
+                    }
+
+                    /* The overview table expands to width, with a max width of 97% */ 
+                    #overview table
+                    {
+                        width: auto;
+                        max-width: 75%; 
+                    }
+
+                    /* The messages tables are always 97% width */
+                    #messages table
+                    {
+                        width: 97%;
+                    }
+
+                    /* All Icons */
+                    .IconSuccessEncoded, .IconInfoEncoded, .IconWarningEncoded, .IconErrorEncoded
+                    {
+                        min-width:18px;
+                        min-height:18px; 
+                        background-repeat:no-repeat;
+                        background-position:center;
+                    }
+
+                    /* Success icon encoded */
+                    .IconSuccessEncoded
+                    {
+                        /* Note: Do not delete the comment below. It is used to verify the correctness of the encoded image resource below before the product is released */
+                        /* [---XsltValidateInternal-Base64EncodedImage:IconSuccess#Begin#background-image: url(data:image/png;base64,#Separator#);#End#] */
+                        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABcElEQVR4Xq2TsUsCURzHv15g8ZJcBWlyiYYgCIWcb9DFRRwMW5TA2c0/QEFwFkxxUQdxVlBwCYWOi6IhWgQhBLHJUCkhLr/BW8S7gvrAg+N+v8/v+x68Z8MGy+XSCyABQAXgBgHGALoASkIIDWSLeLBetdHryMjd5IxQPWT4rn1c/P7+xxp72Cs9m5SZ0Bq2vPnbPFafK2zDvmNHypdC0BPkLlQhxJsCAhQoZwdZU5mwxh720qGo8MzTxTTKZDPCx2HoVzp6lz0Q9tKhyx0kGs8Ny+TkWRKk8lCROwEduhyg9l/6lunOPSfmH3NUH6uQ0KHLAe7JYvJjevm+DAMGJHToKtigE+vwvIidxLamb8IBY9e+C5LiXREkfho3TSd06HJA13/oh6T51MTsfQbHrsMynQ5dDihFjiK8JJAU9AKIWTp76dCVN7HWHrajmUEGvyF9nkbAE6gLIS7kTUyuf2gscLoJrElZo/Mvj+nPz/kLTmfnEwP3tB0AAAAASUVORK5CYII=);
+                    }
+
+                    /* Information icon encoded */
+                    .IconInfoEncoded
+                    {
+                        /* Note: Do not delete the comment below. It is used to verify the correctness of the encoded image resource below before the product is released */
+                        /* [---XsltValidateInternal-Base64EncodedImage:IconInformation#Begin#background-image: url(data:image/png;base64,#Separator#);#End#] */
+                        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABHElEQVR4Xs2TsUoDQRRF7wwoziokjZUKadInhdhukR9YP8DMX1hYW+QvdsXa/QHBbcXC7W0CamWTQnclFutceIQJwwaWNLlwm5k5d94M76mmaeCrrmsLYOocY12FcxZFUeozCqKqqgYA8uevv1H6VuPxcwlfk5N92KHBxfFeCSAxxswlYAW/Xr989x/mv9gkhtyMDhcAxgzRsp7flj8B/HF1RsMXq+NZMkopaHe7lbKxQUEIGbKsYNoGn969060hZBkQex/W8oRQwsQaW2o3Ago2SVcJUzAgY3N0lTCZZm+zPS8HB51gMmS1DEYyOz9acKO1D8JWTlafKIMxdhvlfdyT94Vv5h7P8Ky7nQzACmhvKq3zk3PjW9asz9D/1oigecsioooAAAAASUVORK5CYII=);
+                    }
+
+                    /* Warning icon encoded */
+                    .IconWarningEncoded
+                    {
+                        /* Note: Do not delete the comment below. It is used to verify the correctness of the encoded image resource below before the product is released */
+                        /* [---XsltValidateInternal-Base64EncodedImage:IconWarning#Begin#background-image: url(data:image/png;base64,#Separator#);#End#] */
+                        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAx0lEQVR4XpWSMQ7CMAxFf4xAyBMLCxMrO8dhaBcuwdCJS3RJBw7SA/QGTCxdWJgiQYWKXJWKIXHIlyw5lqr34tQgEOdcBsCOx5yZK3hCCKdYXneQkh4pEfqzLfu+wVDSyyzFoJjfz9NB+pAF+eizx2Vruts0k15mPgvS6GYvpVtQhB61IB/dk6AF6fS4Ben0uIX5odtFe8Q/eW1KvFeH4e8khT6+gm5B+t3juyDt7n0jpe+CANTd+oTUjN/U3yVaABnSUjFz/gFq44JaVSCXeQAAAABJRU5ErkJggg==);
+                    }
+
+                    /* Error icon encoded */
+                    .IconErrorEncoded
+                    {
+                        /* Note: Do not delete the comment below. It is used to verify the correctness of the encoded image resource below before the product is released */
+                        /* [---XsltValidateInternal-Base64EncodedImage:IconError#Begin#background-image: url(data:image/png;base64,#Separator#);#End#] */
+                        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABQElEQVR4XqWTvUoEQRCE6wYPZUA80AfwAQz23uCMjA7MDRQEIzPBVEyNTQUFIw00vcQTTMzuAh/AxEQQT8HF/3G/oGGnEUGuoNnd6qoZuqltyKEsyzVJq5I6rnUp6SjGeGhESikzzlc1eL7opfuVbrqbU1Zw9NCgtQMaZpY0eNnaaL2fHusvTK5vKu7sjSS1Y4y3QUA6K3e3Mau5UFDyMP7tYF9o8cAHZv68vipoIJg971PZIZ5HiwdvYGGvFVFHmGmZ2MxwmQYPXubPl9Up0tfoMQGetXd6mRbvhBw+boZ6WF7Mbv1+GsHRk0fQmPAH1GfmZirbCfDJ61tw3Px8/8pZsPAG4jlVhcPgZ7adwNWBB68lkRQWFiTgFlbnLY3DGGM7izIJIyT/jjIvEJw6fdJTc6krDzh6aMwMP9bvDH4ADSsa9uSWVJkAAAAASUVORK5CYII=);
+                    }
+                 </style><script type="text/javascript" language="javascript"> 
+          
+            // Startup 
+            // Hook up the the loaded event for the document/window, to linkify the document content
+            var startupFunction = function() { linkifyElement("messages"); };
+            
+            if(window.attachEvent)
+            {
+              window.attachEvent('onload', startupFunction);
+            }
+            else if (window.addEventListener) 
+            {
+              window.addEventListener('load', startupFunction, false);
+            }
+            else 
+            {
+              document.addEventListener('load', startupFunction, false);
+            } 
+            
+            // Toggles the visibility of table rows with the specified name 
+            function toggleTableRowsByName(name)
+            {
+               var allRows = document.getElementsByTagName('tr');
+               for (i=0; i < allRows.length; i++)
+               {
+                  var currentName = allRows[i].getAttribute('name');
+                  if(!!currentName && currentName.indexOf(name) == 0)
+                  {
+                      var isVisible = allRows[i].style.display == ''; 
+                      isVisible ? allRows[i].style.display = 'none' : allRows[i].style.display = '';
+                  }
+               }
+            }
+            
+            function scrollToFirstVisibleRow(name) 
+            {
+               var allRows = document.getElementsByTagName('tr');
+               for (i=0; i < allRows.length; i++)
+               {
+                  var currentName = allRows[i].getAttribute('name');
+                  var isVisible = allRows[i].style.display == ''; 
+                  if(!!currentName && currentName.indexOf(name) == 0 && isVisible)
+                  {
+                     allRows[i].scrollIntoView(true); 
+                     return true; 
+                  }
+               }
+               
+               return false;
+            }
+            
+            // Linkifies the specified text content, replaces candidate links with html links 
+            function linkify(text)
+            {
+                 if(!text || 0 === text.length)
+                 {
+                     return text; 
+                 }
+
+                 // Find http, https and ftp links and replace them with hyper links 
+                 var urlLink = /(http|https|ftp)\:\/\/[a-zA-Z0-9\-\.]+(:[a-zA-Z0-9]*)?\/?([a-zA-Z0-9\-\._\?\,\/\\\+&%\$#\=~;\{\}])*/gi;
+                 
+                 return text.replace(urlLink, '<a href="$&">$&</a>') ;
+            }
+            
+            // Linkifies the specified element by ID
+            function linkifyElement(id)
+            {
+                var element = document.getElementById(id);
+                if(!!element)
+                {
+                  element.innerHTML = linkify(element.innerHTML); 
+                }
+            }
+            
+            function ToggleMessageVisibility(projectName)
+            {
+              if(!projectName || 0 === projectName.length)
+              {
+                return; 
+              }
+              
+              toggleTableRowsByName("MessageRowClass" + projectName);
+              toggleTableRowsByName('MessageRowHeaderShow' + projectName);
+              toggleTableRowsByName('MessageRowHeaderHide' + projectName); 
+            }
+            
+            function ScrollToFirstVisibleMessage(projectName)
+            {
+              if(!projectName || 0 === projectName.length)
+              {
+                return; 
+              }
+              
+              // First try the 'Show messages' row
+              if(!scrollToFirstVisibleRow('MessageRowHeaderShow' + projectName))
+              {
+                // Failed to find a visible row for 'Show messages', try an actual message row 
+                scrollToFirstVisibleRow('MessageRowClass' + projectName); 
+              }
+            }
+           </script></head><body><h1 _locID="ConversionReport">
+          Migration Report - UMD CSPE</h1><div id="content"><h2 _locID="OverviewTitle">Overview</h2><div id="overview"><table><tr><th></th><th _locID="ProjectTableHeader">Project</th><th _locID="PathTableHeader">Path</th><th _locID="ErrorsTableHeader">Errors</th><th _locID="WarningsTableHeader">Warnings</th><th _locID="MessagesTableHeader">Messages</th></tr><tr><td class="IconWarningEncoded" /><td><strong><a href="#Solution"><span _locID="OverviewSolutionSpan">Solution</span></a></strong></td><td>UMD CSPE.slnx</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#SolutionWarning">1</a></td><td class="textCentered"><a href="#" onclick="ScrollToFirstVisibleMessage('Solution'); return false;">2</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Assembly-CSharp">Assembly-CSharp</a></strong></td><td>Assembly-CSharp.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Assembly-CSharp-Editor">Assembly-CSharp-Editor</a></strong></td><td>Assembly-CSharp-Editor.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#meta.xr.ai.agentbridge">meta.xr.ai.agentbridge</a></strong></td><td>meta.xr.ai.agentbridge.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#meta.xr.ai.agentbridge.editor">meta.xr.ai.agentbridge.editor</a></strong></td><td>meta.xr.ai.agentbridge.editor.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#meta.xr.ai.agentbridge.telemetry">meta.xr.ai.agentbridge.telemetry</a></strong></td><td>meta.xr.ai.agentbridge.telemetry.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#meta.xr.ai.mcpbridge">meta.xr.ai.mcpbridge</a></strong></td><td>meta.xr.ai.mcpbridge.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#meta.xr.ai.mcpbridge.editor">meta.xr.ai.mcpbridge.editor</a></strong></td><td>meta.xr.ai.mcpbridge.editor.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#meta.xr.ai.mcpbridge.telemetry">meta.xr.ai.mcpbridge.telemetry</a></strong></td><td>meta.xr.ai.mcpbridge.telemetry.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.BuildingBlocks">Meta.XR.BuildingBlocks</a></strong></td><td>Meta.XR.BuildingBlocks.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.BuildingBlocks.AIBlocks">Meta.XR.BuildingBlocks.AIBlocks</a></strong></td><td>Meta.XR.BuildingBlocks.AIBlocks.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.BuildingBlocks.DepthAPI">Meta.XR.BuildingBlocks.DepthAPI</a></strong></td><td>Meta.XR.BuildingBlocks.DepthAPI.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.BuildingBlocks.DepthAPI.Editor">Meta.XR.BuildingBlocks.DepthAPI.Editor</a></strong></td><td>Meta.XR.BuildingBlocks.DepthAPI.Editor.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.BuildingBlocks.Editor">Meta.XR.BuildingBlocks.Editor</a></strong></td><td>Meta.XR.BuildingBlocks.Editor.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.Editor.BuildingBlocks.AIBlocks">Meta.XR.Editor.BuildingBlocks.AIBlocks</a></strong></td><td>Meta.XR.Editor.BuildingBlocks.AIBlocks.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.Editor.Callbacks">Meta.XR.Editor.Callbacks</a></strong></td><td>Meta.XR.Editor.Callbacks.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.Editor.EditorCoroutine">Meta.XR.Editor.EditorCoroutine</a></strong></td><td>Meta.XR.Editor.EditorCoroutine.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.Editor.Guide.About">Meta.XR.Editor.Guide.About</a></strong></td><td>Meta.XR.Editor.Guide.About.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.Editor.Id">Meta.XR.Editor.Id</a></strong></td><td>Meta.XR.Editor.Id.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.Editor.Notifications">Meta.XR.Editor.Notifications</a></strong></td><td>Meta.XR.Editor.Notifications.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.Editor.PlayCompanion">Meta.XR.Editor.PlayCompanion</a></strong></td><td>Meta.XR.Editor.PlayCompanion.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.Editor.Reflection">Meta.XR.Editor.Reflection</a></strong></td><td>Meta.XR.Editor.Reflection.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.Editor.RemoteContent">Meta.XR.Editor.RemoteContent</a></strong></td><td>Meta.XR.Editor.RemoteContent.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.Editor.Settings">Meta.XR.Editor.Settings</a></strong></td><td>Meta.XR.Editor.Settings.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.Editor.StatusMenu">Meta.XR.Editor.StatusMenu</a></strong></td><td>Meta.XR.Editor.StatusMenu.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.Editor.Tags">Meta.XR.Editor.Tags</a></strong></td><td>Meta.XR.Editor.Tags.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.Editor.TelemetryUI">Meta.XR.Editor.TelemetryUI</a></strong></td><td>Meta.XR.Editor.TelemetryUI.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.Editor.ToolingSupport">Meta.XR.Editor.ToolingSupport</a></strong></td><td>Meta.XR.Editor.ToolingSupport.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.Editor.UPST.Notifications">Meta.XR.Editor.UPST.Notifications</a></strong></td><td>Meta.XR.Editor.UPST.Notifications.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.Editor.UserInterface">Meta.XR.Editor.UserInterface</a></strong></td><td>Meta.XR.Editor.UserInterface.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.EnvironmentDepth">Meta.XR.EnvironmentDepth</a></strong></td><td>Meta.XR.EnvironmentDepth.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.EnvironmentDepth.Editor">Meta.XR.EnvironmentDepth.Editor</a></strong></td><td>Meta.XR.EnvironmentDepth.Editor.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.Guides.Editor">Meta.XR.Guides.Editor</a></strong></td><td>Meta.XR.Guides.Editor.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.ImmersiveDebugger">Meta.XR.ImmersiveDebugger</a></strong></td><td>Meta.XR.ImmersiveDebugger.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.ImmersiveDebugger.DevAgent">Meta.XR.ImmersiveDebugger.DevAgent</a></strong></td><td>Meta.XR.ImmersiveDebugger.DevAgent.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.ImmersiveDebugger.DevAgent.Editor">Meta.XR.ImmersiveDebugger.DevAgent.Editor</a></strong></td><td>Meta.XR.ImmersiveDebugger.DevAgent.Editor.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.ImmersiveDebugger.DevAgent.Tools">Meta.XR.ImmersiveDebugger.DevAgent.Tools</a></strong></td><td>Meta.XR.ImmersiveDebugger.DevAgent.Tools.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.ImmersiveDebugger.Editor">Meta.XR.ImmersiveDebugger.Editor</a></strong></td><td>Meta.XR.ImmersiveDebugger.Editor.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.ImmersiveDebugger.Interface">Meta.XR.ImmersiveDebugger.Interface</a></strong></td><td>Meta.XR.ImmersiveDebugger.Interface.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.MetaWand.Editor">Meta.XR.MetaWand.Editor</a></strong></td><td>Meta.XR.MetaWand.Editor.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#meta.xr.mrutilitykit">meta.xr.mrutilitykit</a></strong></td><td>meta.xr.mrutilitykit.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#meta.xr.mrutilitykit.editor">meta.xr.mrutilitykit.editor</a></strong></td><td>meta.xr.mrutilitykit.editor.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#meta.xr.mrutilitykit.tests">meta.xr.mrutilitykit.tests</a></strong></td><td>meta.xr.mrutilitykit.tests.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.MultiplayerBlocks.Fusion.Editor">Meta.XR.MultiplayerBlocks.Fusion.Editor</a></strong></td><td>Meta.XR.MultiplayerBlocks.Fusion.Editor.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.MultiplayerBlocks.NGO.Editor">Meta.XR.MultiplayerBlocks.NGO.Editor</a></strong></td><td>Meta.XR.MultiplayerBlocks.NGO.Editor.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.MultiplayerBlocks.Shared">Meta.XR.MultiplayerBlocks.Shared</a></strong></td><td>Meta.XR.MultiplayerBlocks.Shared.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.MultiplayerBlocks.Shared.Editor">Meta.XR.MultiplayerBlocks.Shared.Editor</a></strong></td><td>Meta.XR.MultiplayerBlocks.Shared.Editor.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.RuntimeOptimizer">Meta.XR.RuntimeOptimizer</a></strong></td><td>Meta.XR.RuntimeOptimizer.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.RuntimeOptimizer.Core">Meta.XR.RuntimeOptimizer.Core</a></strong></td><td>Meta.XR.RuntimeOptimizer.Core.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Meta.XR.RuntimeOptimizer.Editor">Meta.XR.RuntimeOptimizer.Editor</a></strong></td><td>Meta.XR.RuntimeOptimizer.Editor.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#MetaXRSimulatorCore.Editor">MetaXRSimulatorCore.Editor</a></strong></td><td>MetaXRSimulatorCore.Editor.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Oculus.Interaction">Oculus.Interaction</a></strong></td><td>Oculus.Interaction.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Oculus.Interaction.Editor">Oculus.Interaction.Editor</a></strong></td><td>Oculus.Interaction.Editor.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Oculus.Interaction.Editor.UnityXR">Oculus.Interaction.Editor.UnityXR</a></strong></td><td>Oculus.Interaction.Editor.UnityXR.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Oculus.Interaction.InterfaceSupport">Oculus.Interaction.InterfaceSupport</a></strong></td><td>Oculus.Interaction.InterfaceSupport.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Oculus.Interaction.Samples">Oculus.Interaction.Samples</a></strong></td><td>Oculus.Interaction.Samples.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Oculus.Interaction.Samples.Editor">Oculus.Interaction.Samples.Editor</a></strong></td><td>Oculus.Interaction.Samples.Editor.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Oculus.Interaction.Samples.Editor.UISet">Oculus.Interaction.Samples.Editor.UISet</a></strong></td><td>Oculus.Interaction.Samples.Editor.UISet.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Oculus.Interaction.UnityXR">Oculus.Interaction.UnityXR</a></strong></td><td>Oculus.Interaction.UnityXR.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Oculus.VR">Oculus.VR</a></strong></td><td>Oculus.VR.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Oculus.VR.Editor">Oculus.VR.Editor</a></strong></td><td>Oculus.VR.Editor.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Oculus.VR.Scripts.Editor">Oculus.VR.Scripts.Editor</a></strong></td><td>Oculus.VR.Scripts.Editor.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr><tr><td class="IconSuccessEncoded" /><td><strong><a href="#Unity.XR.Interaction.Toolkit.Samples.DeviceSimulator">Unity.XR.Interaction.Toolkit.Samples.DeviceSimulator</a></strong></td><td>Unity.XR.Interaction.Toolkit.Samples.DeviceSimulator.csproj</td><td class="textCentered"><a>0</a></td><td class="textCentered"><a>0</a></td><td class="textCentered"><a href="#">0</a></td></tr></table></div><h2 _locID="SolutionAndProjectsTitle">Solution and projects</h2><div id="messages"><a name="Solution" /><h3 _locID="ProjectDisplayNameHeader">Solution</h3><table><tr id="SolutionHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr name="WarningRowClassSolution"><td class="IconWarningEncoded"><a name="SolutionWarning" /></td><td class="messageCell"><strong>UMD CSPE.slnx:
+        </strong><span>Visual Studio needs to make non-functional changes to this project in order to enable the project to open in released versions of Visual Studio newer than Visual Studio 2010 SP1 without impacting project behavior.</span></td></tr><tr name="MessageRowHeaderShowSolution"><td class="IconInfoEncoded" /><td class="messageCell"><a _locID="ShowAdditionalMessages" href="#" name="SolutionMessage" onclick="ToggleMessageVisibility('Solution'); return false;">
+          Show 2 additional messages
+        </a></td></tr><tr name="MessageRowClassSolution" style="display: none"><td class="IconInfoEncoded"><a name="SolutionMessage" /></td><td class="messageCell"><strong>UMD CSPE.slnx:
+        </strong><span>File successfully backed up as C:\Users\Wei Wang\UMD CSPE\Backup\UMD CSPE.slnx</span></td></tr><tr name="MessageRowClassSolution" style="display: none"><td class="IconInfoEncoded"><a name="SolutionMessage" /></td><td class="messageCell"><strong>UMD CSPE.slnx:
+        </strong><span>Solution migrated successfully</span></td></tr><tr style="display: none" name="MessageRowHeaderHideSolution"><td class="IconInfoEncoded" /><td class="messageCell"><a _locID="HideAdditionalMessages" href="#" name="SolutionMessage" onclick="ToggleMessageVisibility('Solution'); return false;">
+          Hide 2 additional messages
+        </a></td></tr></table><a name="Assembly-CSharp" /><h3>Assembly-CSharp</h3><table><tr id="Assembly-CSharpHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Assembly-CSharp logged no messages.
+                  </td></tr></table><a name="Assembly-CSharp-Editor" /><h3>Assembly-CSharp-Editor</h3><table><tr id="Assembly-CSharp-EditorHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Assembly-CSharp-Editor logged no messages.
+                  </td></tr></table><a name="meta.xr.ai.agentbridge" /><h3>meta.xr.ai.agentbridge</h3><table><tr id="meta.xr.ai.agentbridgeHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">meta.xr.ai.agentbridge logged no messages.
+                  </td></tr></table><a name="meta.xr.ai.agentbridge.editor" /><h3>meta.xr.ai.agentbridge.editor</h3><table><tr id="meta.xr.ai.agentbridge.editorHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">meta.xr.ai.agentbridge.editor logged no messages.
+                  </td></tr></table><a name="meta.xr.ai.agentbridge.telemetry" /><h3>meta.xr.ai.agentbridge.telemetry</h3><table><tr id="meta.xr.ai.agentbridge.telemetryHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">meta.xr.ai.agentbridge.telemetry logged no messages.
+                  </td></tr></table><a name="meta.xr.ai.mcpbridge" /><h3>meta.xr.ai.mcpbridge</h3><table><tr id="meta.xr.ai.mcpbridgeHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">meta.xr.ai.mcpbridge logged no messages.
+                  </td></tr></table><a name="meta.xr.ai.mcpbridge.editor" /><h3>meta.xr.ai.mcpbridge.editor</h3><table><tr id="meta.xr.ai.mcpbridge.editorHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">meta.xr.ai.mcpbridge.editor logged no messages.
+                  </td></tr></table><a name="meta.xr.ai.mcpbridge.telemetry" /><h3>meta.xr.ai.mcpbridge.telemetry</h3><table><tr id="meta.xr.ai.mcpbridge.telemetryHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">meta.xr.ai.mcpbridge.telemetry logged no messages.
+                  </td></tr></table><a name="Meta.XR.BuildingBlocks" /><h3>Meta.XR.BuildingBlocks</h3><table><tr id="Meta.XR.BuildingBlocksHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.BuildingBlocks logged no messages.
+                  </td></tr></table><a name="Meta.XR.BuildingBlocks.AIBlocks" /><h3>Meta.XR.BuildingBlocks.AIBlocks</h3><table><tr id="Meta.XR.BuildingBlocks.AIBlocksHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.BuildingBlocks.AIBlocks logged no messages.
+                  </td></tr></table><a name="Meta.XR.BuildingBlocks.DepthAPI" /><h3>Meta.XR.BuildingBlocks.DepthAPI</h3><table><tr id="Meta.XR.BuildingBlocks.DepthAPIHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.BuildingBlocks.DepthAPI logged no messages.
+                  </td></tr></table><a name="Meta.XR.BuildingBlocks.DepthAPI.Editor" /><h3>Meta.XR.BuildingBlocks.DepthAPI.Editor</h3><table><tr id="Meta.XR.BuildingBlocks.DepthAPI.EditorHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.BuildingBlocks.DepthAPI.Editor logged no messages.
+                  </td></tr></table><a name="Meta.XR.BuildingBlocks.Editor" /><h3>Meta.XR.BuildingBlocks.Editor</h3><table><tr id="Meta.XR.BuildingBlocks.EditorHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.BuildingBlocks.Editor logged no messages.
+                  </td></tr></table><a name="Meta.XR.Editor.BuildingBlocks.AIBlocks" /><h3>Meta.XR.Editor.BuildingBlocks.AIBlocks</h3><table><tr id="Meta.XR.Editor.BuildingBlocks.AIBlocksHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.Editor.BuildingBlocks.AIBlocks logged no messages.
+                  </td></tr></table><a name="Meta.XR.Editor.Callbacks" /><h3>Meta.XR.Editor.Callbacks</h3><table><tr id="Meta.XR.Editor.CallbacksHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.Editor.Callbacks logged no messages.
+                  </td></tr></table><a name="Meta.XR.Editor.EditorCoroutine" /><h3>Meta.XR.Editor.EditorCoroutine</h3><table><tr id="Meta.XR.Editor.EditorCoroutineHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.Editor.EditorCoroutine logged no messages.
+                  </td></tr></table><a name="Meta.XR.Editor.Guide.About" /><h3>Meta.XR.Editor.Guide.About</h3><table><tr id="Meta.XR.Editor.Guide.AboutHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.Editor.Guide.About logged no messages.
+                  </td></tr></table><a name="Meta.XR.Editor.Id" /><h3>Meta.XR.Editor.Id</h3><table><tr id="Meta.XR.Editor.IdHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.Editor.Id logged no messages.
+                  </td></tr></table><a name="Meta.XR.Editor.Notifications" /><h3>Meta.XR.Editor.Notifications</h3><table><tr id="Meta.XR.Editor.NotificationsHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.Editor.Notifications logged no messages.
+                  </td></tr></table><a name="Meta.XR.Editor.PlayCompanion" /><h3>Meta.XR.Editor.PlayCompanion</h3><table><tr id="Meta.XR.Editor.PlayCompanionHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.Editor.PlayCompanion logged no messages.
+                  </td></tr></table><a name="Meta.XR.Editor.Reflection" /><h3>Meta.XR.Editor.Reflection</h3><table><tr id="Meta.XR.Editor.ReflectionHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.Editor.Reflection logged no messages.
+                  </td></tr></table><a name="Meta.XR.Editor.RemoteContent" /><h3>Meta.XR.Editor.RemoteContent</h3><table><tr id="Meta.XR.Editor.RemoteContentHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.Editor.RemoteContent logged no messages.
+                  </td></tr></table><a name="Meta.XR.Editor.Settings" /><h3>Meta.XR.Editor.Settings</h3><table><tr id="Meta.XR.Editor.SettingsHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.Editor.Settings logged no messages.
+                  </td></tr></table><a name="Meta.XR.Editor.StatusMenu" /><h3>Meta.XR.Editor.StatusMenu</h3><table><tr id="Meta.XR.Editor.StatusMenuHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.Editor.StatusMenu logged no messages.
+                  </td></tr></table><a name="Meta.XR.Editor.Tags" /><h3>Meta.XR.Editor.Tags</h3><table><tr id="Meta.XR.Editor.TagsHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.Editor.Tags logged no messages.
+                  </td></tr></table><a name="Meta.XR.Editor.TelemetryUI" /><h3>Meta.XR.Editor.TelemetryUI</h3><table><tr id="Meta.XR.Editor.TelemetryUIHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.Editor.TelemetryUI logged no messages.
+                  </td></tr></table><a name="Meta.XR.Editor.ToolingSupport" /><h3>Meta.XR.Editor.ToolingSupport</h3><table><tr id="Meta.XR.Editor.ToolingSupportHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.Editor.ToolingSupport logged no messages.
+                  </td></tr></table><a name="Meta.XR.Editor.UPST.Notifications" /><h3>Meta.XR.Editor.UPST.Notifications</h3><table><tr id="Meta.XR.Editor.UPST.NotificationsHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.Editor.UPST.Notifications logged no messages.
+                  </td></tr></table><a name="Meta.XR.Editor.UserInterface" /><h3>Meta.XR.Editor.UserInterface</h3><table><tr id="Meta.XR.Editor.UserInterfaceHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.Editor.UserInterface logged no messages.
+                  </td></tr></table><a name="Meta.XR.EnvironmentDepth" /><h3>Meta.XR.EnvironmentDepth</h3><table><tr id="Meta.XR.EnvironmentDepthHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.EnvironmentDepth logged no messages.
+                  </td></tr></table><a name="Meta.XR.EnvironmentDepth.Editor" /><h3>Meta.XR.EnvironmentDepth.Editor</h3><table><tr id="Meta.XR.EnvironmentDepth.EditorHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.EnvironmentDepth.Editor logged no messages.
+                  </td></tr></table><a name="Meta.XR.Guides.Editor" /><h3>Meta.XR.Guides.Editor</h3><table><tr id="Meta.XR.Guides.EditorHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.Guides.Editor logged no messages.
+                  </td></tr></table><a name="Meta.XR.ImmersiveDebugger" /><h3>Meta.XR.ImmersiveDebugger</h3><table><tr id="Meta.XR.ImmersiveDebuggerHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.ImmersiveDebugger logged no messages.
+                  </td></tr></table><a name="Meta.XR.ImmersiveDebugger.DevAgent" /><h3>Meta.XR.ImmersiveDebugger.DevAgent</h3><table><tr id="Meta.XR.ImmersiveDebugger.DevAgentHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.ImmersiveDebugger.DevAgent logged no messages.
+                  </td></tr></table><a name="Meta.XR.ImmersiveDebugger.DevAgent.Editor" /><h3>Meta.XR.ImmersiveDebugger.DevAgent.Editor</h3><table><tr id="Meta.XR.ImmersiveDebugger.DevAgent.EditorHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.ImmersiveDebugger.DevAgent.Editor logged no messages.
+                  </td></tr></table><a name="Meta.XR.ImmersiveDebugger.DevAgent.Tools" /><h3>Meta.XR.ImmersiveDebugger.DevAgent.Tools</h3><table><tr id="Meta.XR.ImmersiveDebugger.DevAgent.ToolsHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.ImmersiveDebugger.DevAgent.Tools logged no messages.
+                  </td></tr></table><a name="Meta.XR.ImmersiveDebugger.Editor" /><h3>Meta.XR.ImmersiveDebugger.Editor</h3><table><tr id="Meta.XR.ImmersiveDebugger.EditorHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.ImmersiveDebugger.Editor logged no messages.
+                  </td></tr></table><a name="Meta.XR.ImmersiveDebugger.Interface" /><h3>Meta.XR.ImmersiveDebugger.Interface</h3><table><tr id="Meta.XR.ImmersiveDebugger.InterfaceHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.ImmersiveDebugger.Interface logged no messages.
+                  </td></tr></table><a name="Meta.XR.MetaWand.Editor" /><h3>Meta.XR.MetaWand.Editor</h3><table><tr id="Meta.XR.MetaWand.EditorHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.MetaWand.Editor logged no messages.
+                  </td></tr></table><a name="meta.xr.mrutilitykit" /><h3>meta.xr.mrutilitykit</h3><table><tr id="meta.xr.mrutilitykitHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">meta.xr.mrutilitykit logged no messages.
+                  </td></tr></table><a name="meta.xr.mrutilitykit.editor" /><h3>meta.xr.mrutilitykit.editor</h3><table><tr id="meta.xr.mrutilitykit.editorHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">meta.xr.mrutilitykit.editor logged no messages.
+                  </td></tr></table><a name="meta.xr.mrutilitykit.tests" /><h3>meta.xr.mrutilitykit.tests</h3><table><tr id="meta.xr.mrutilitykit.testsHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">meta.xr.mrutilitykit.tests logged no messages.
+                  </td></tr></table><a name="Meta.XR.MultiplayerBlocks.Fusion.Editor" /><h3>Meta.XR.MultiplayerBlocks.Fusion.Editor</h3><table><tr id="Meta.XR.MultiplayerBlocks.Fusion.EditorHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.MultiplayerBlocks.Fusion.Editor logged no messages.
+                  </td></tr></table><a name="Meta.XR.MultiplayerBlocks.NGO.Editor" /><h3>Meta.XR.MultiplayerBlocks.NGO.Editor</h3><table><tr id="Meta.XR.MultiplayerBlocks.NGO.EditorHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.MultiplayerBlocks.NGO.Editor logged no messages.
+                  </td></tr></table><a name="Meta.XR.MultiplayerBlocks.Shared" /><h3>Meta.XR.MultiplayerBlocks.Shared</h3><table><tr id="Meta.XR.MultiplayerBlocks.SharedHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.MultiplayerBlocks.Shared logged no messages.
+                  </td></tr></table><a name="Meta.XR.MultiplayerBlocks.Shared.Editor" /><h3>Meta.XR.MultiplayerBlocks.Shared.Editor</h3><table><tr id="Meta.XR.MultiplayerBlocks.Shared.EditorHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.MultiplayerBlocks.Shared.Editor logged no messages.
+                  </td></tr></table><a name="Meta.XR.RuntimeOptimizer" /><h3>Meta.XR.RuntimeOptimizer</h3><table><tr id="Meta.XR.RuntimeOptimizerHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.RuntimeOptimizer logged no messages.
+                  </td></tr></table><a name="Meta.XR.RuntimeOptimizer.Core" /><h3>Meta.XR.RuntimeOptimizer.Core</h3><table><tr id="Meta.XR.RuntimeOptimizer.CoreHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.RuntimeOptimizer.Core logged no messages.
+                  </td></tr></table><a name="Meta.XR.RuntimeOptimizer.Editor" /><h3>Meta.XR.RuntimeOptimizer.Editor</h3><table><tr id="Meta.XR.RuntimeOptimizer.EditorHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Meta.XR.RuntimeOptimizer.Editor logged no messages.
+                  </td></tr></table><a name="MetaXRSimulatorCore.Editor" /><h3>MetaXRSimulatorCore.Editor</h3><table><tr id="MetaXRSimulatorCore.EditorHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">MetaXRSimulatorCore.Editor logged no messages.
+                  </td></tr></table><a name="Oculus.Interaction" /><h3>Oculus.Interaction</h3><table><tr id="Oculus.InteractionHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Oculus.Interaction logged no messages.
+                  </td></tr></table><a name="Oculus.Interaction.Editor" /><h3>Oculus.Interaction.Editor</h3><table><tr id="Oculus.Interaction.EditorHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Oculus.Interaction.Editor logged no messages.
+                  </td></tr></table><a name="Oculus.Interaction.Editor.UnityXR" /><h3>Oculus.Interaction.Editor.UnityXR</h3><table><tr id="Oculus.Interaction.Editor.UnityXRHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Oculus.Interaction.Editor.UnityXR logged no messages.
+                  </td></tr></table><a name="Oculus.Interaction.InterfaceSupport" /><h3>Oculus.Interaction.InterfaceSupport</h3><table><tr id="Oculus.Interaction.InterfaceSupportHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Oculus.Interaction.InterfaceSupport logged no messages.
+                  </td></tr></table><a name="Oculus.Interaction.Samples" /><h3>Oculus.Interaction.Samples</h3><table><tr id="Oculus.Interaction.SamplesHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Oculus.Interaction.Samples logged no messages.
+                  </td></tr></table><a name="Oculus.Interaction.Samples.Editor" /><h3>Oculus.Interaction.Samples.Editor</h3><table><tr id="Oculus.Interaction.Samples.EditorHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Oculus.Interaction.Samples.Editor logged no messages.
+                  </td></tr></table><a name="Oculus.Interaction.Samples.Editor.UISet" /><h3>Oculus.Interaction.Samples.Editor.UISet</h3><table><tr id="Oculus.Interaction.Samples.Editor.UISetHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Oculus.Interaction.Samples.Editor.UISet logged no messages.
+                  </td></tr></table><a name="Oculus.Interaction.UnityXR" /><h3>Oculus.Interaction.UnityXR</h3><table><tr id="Oculus.Interaction.UnityXRHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Oculus.Interaction.UnityXR logged no messages.
+                  </td></tr></table><a name="Oculus.VR" /><h3>Oculus.VR</h3><table><tr id="Oculus.VRHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Oculus.VR logged no messages.
+                  </td></tr></table><a name="Oculus.VR.Editor" /><h3>Oculus.VR.Editor</h3><table><tr id="Oculus.VR.EditorHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Oculus.VR.Editor logged no messages.
+                  </td></tr></table><a name="Oculus.VR.Scripts.Editor" /><h3>Oculus.VR.Scripts.Editor</h3><table><tr id="Oculus.VR.Scripts.EditorHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Oculus.VR.Scripts.Editor logged no messages.
+                  </td></tr></table><a name="Unity.XR.Interaction.Toolkit.Samples.DeviceSimulator" /><h3>Unity.XR.Interaction.Toolkit.Samples.DeviceSimulator</h3><table><tr id="Unity.XR.Interaction.Toolkit.Samples.DeviceSimulatorHeaderRow"><th></th><th class="messageCell" _locID="MessageTableHeader">Message</th></tr><tr><td class="IconInfoEncoded" /><td class="messageCell" _locID="NoMessagesRow">Unity.XR.Interaction.Toolkit.Samples.DeviceSimulator logged no messages.
+                  </td></tr></table></div></div></body></html>

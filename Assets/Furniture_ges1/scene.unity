@@ -1560,7 +1560,8 @@ PrefabInstance:
       value: 0.273
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 100010, guid: 0d2ed163860809d48ab2e72792d683e8, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 400000, guid: 0d2ed163860809d48ab2e72792d683e8, type: 3}
       insertIndex: -1
@@ -1582,6 +1583,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1449707223}
   - component: {fileID: 1449707222}
+  - component: {fileID: 1449707224}
   m_Layer: 0
   m_Name: Directional light
   m_TagString: Untagged
@@ -1669,6 +1671,35 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 17.832, y: -60.158005, z: -57.196003}
+--- !u!114 &1449707224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1449707221}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_CustomShadowLayers: 0
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ShadowRenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_Version: 4
+  m_LightLayerMask: 1
+  m_ShadowLayerMask: 1
+  m_RenderingLayers: 1
+  m_ShadowRenderingLayers: 1
 --- !u!1 &1472401654
 GameObject:
   m_ObjectHideFlags: 0
