@@ -6,9 +6,10 @@ Errors that we have solved in the pass, the controller not appearing and the con
 Things that we have to do right now : 
 - Make the headset responsive to it's relative height
 - Make the map solid and the blocks solid
-- Add gravity for the environment and fix the pass through (if we make the headset responsive height we don't have to 
+- Add gravity for the environment and fix the pass through (if we make the headset responsive height we don't have to worry about adding jump or grabvity for the camera which also fixes the passthroguht problem) 
 - Fix the jump button and button inputs and make a run function
 - Fix the model for when controllers and using realistic hand simultaneously since they both appear. 
+- Make the objects smallers because when the person pciks up the objects, it looks way to big comapred to when the person is far apart (I know that this might be common sense but it's different from out environment which makes the experience less realistic)
 
 
 ## Starting out in Unity ##
@@ -17,3 +18,10 @@ In the unity environment, you can download the official unity installer at their
 
 
 2. First drag the camera rig into your environment.
+
+3. Connect the camera and the controllers into the environemtns
+
+4. Add the Locomove script to the camera rig so the player can move and control the player in the game using controllers
+
+5. Add cubes or imported assets and then add the meta blcok grabbable script to it.
+
