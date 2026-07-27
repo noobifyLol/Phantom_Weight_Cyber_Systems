@@ -6,7 +6,7 @@ using System.IO.Ports;
 public class CubeGrabDetector : MonoBehaviour
 {
 
-    SerialPort esp = new SerialPort("COM4", 9600);
+    SerialPort esp = new SerialPort("COM4", 115200);
     private Grabbable grabbable;
     private bool isGrabbed = false;
 
