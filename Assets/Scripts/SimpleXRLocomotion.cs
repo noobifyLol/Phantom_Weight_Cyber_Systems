@@ -63,7 +63,7 @@ public class SimpleXRLocomotion : MonoBehaviour
 
     [Tooltip("Comfort note: vertical camera motion that doesn't match your real body can cause " +
              "motion sickness for some players. Test carefully; consider making jump optional.")]
-    public bool jumpEnabled = true;
+    public bool jumpEnabled = false;
 
     [Header("Crouch (right thumbstick down, held)")]
     [Tooltip("How far (metres) the view drops while crouching.")]

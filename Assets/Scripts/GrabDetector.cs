@@ -1,34 +1,43 @@
 using UnityEngine;
 using Oculus.Interaction;
 
-public class GrabDetector : MonoBehaviour
+public class CubeGrabDetector : MonoBehaviour
 {
     private Grabbable grabbable;
+    private bool isGrabbed = false;
 
     void Start()
     {
         grabbable = GetComponent<Grabbable>();
+    }
 
+    void Update()
+    {
         if (grabbable != null)
         {
-            grabbable.WhenPointerEventRaised += OnPointerEvent;
-        }
-        else
-        {
-            Debug.LogError("No Grabbable component found!");
+            // Check if the pointable has any active selecting interactors (is grabbed)
+            bool currentlyGrabbed = grabbable.SelectingPointsCount > 0;
+
+            if (currentlyGrabbed && !isGrabbed)
+            {
+                isGrabbed = true;
+                OnGrabbed();
+            }
+            else if (!currentlyGrabbed && isGrabbed)
+            {
+                isGrabbed = false;
+                OnReleased();
+            }
         }
     }
 
-    private void OnPointerEvent(PointerEvent evt)
+    void OnGrabbed()
     {
-        if (evt.Type == PointerEventType.Select)
-        {
-            Debug.Log("Cube grabbed!");
-        }
+        Debug.Log("Cube has been grabbed!");
+    }
 
-        if (evt.Type == PointerEventType.Unselect)
-        {
-            Debug.Log("Cube released!");
-        }
+    void OnReleased()
+    {
+        Debug.Log("Cube has been released!");
     }
 }
