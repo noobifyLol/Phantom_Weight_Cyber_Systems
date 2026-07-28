@@ -10,6 +10,7 @@ Things that we have to do right now :
 - Fix the jump button and button inputs and make a run function
 - Fix the model for when controllers and using realistic hand simultaneously since they both appear. 
 - Make the objects smallers because when the person pciks up the objects, it looks way to big comapred to when the person is far apart (I know that this might be common sense but it's different from out environment which makes the experience less realistic)
+- Remove the black blur and then hand and controller connecting at the same time model blend issue
 
 
 ## Starting out in Unity ##
