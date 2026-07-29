@@ -54,7 +54,9 @@ public class SimpleXRLocomotion : MonoBehaviour
     [Tooltip("How high a jump goes, in metres.")]
     public float jumpHeight = 1.0f;
 
-    [Tooltip("How strong gravity pulls you back down after a jump. Higher = faster fall.")]
+    [Tooltip("How strong gravity pulls you back down after a jump. Higher = faster fall. " +
+             "Must stay negative - setting this to 0 will silently cancel jumping (the jump-" +
+             "height math needs a real gravity value to compute a launch speed).")]
     public float gravity = -9.81f;
 
     [Tooltip("Layers considered 'ground' for jumping/landing. Defaults to Everything - " +
@@ -82,6 +84,12 @@ public class SimpleXRLocomotion : MonoBehaviour
              "2 = every real step moves you twice as far in-game. " +
              "Raise this if the room feels too big and you barely move.")]
     public float physicalMoveGain = 2.0f;
+
+    [Range(1f, 6f)]
+    [Tooltip("Multiplier on real-world CROUCHING (physically moving your head up/down). " +
+             "1 = natural 1:1 (a 3cm real crouch = 3cm in-game, which feels like barely " +
+             "anything). Raise this so a small real crouch produces a much bigger dip in-game.")]
+    public float physicalCrouchGain = 3.0f;
 
     OVRCameraRig _rig;
     Transform _head;
@@ -135,20 +143,34 @@ public class SimpleXRLocomotion : MonoBehaviour
 
     /// <summary>
     /// Option B: adds extra world movement proportional to how far the headset
-    /// physically moved this frame, so real walking covers more ground.
-    /// Head position is measured inside TrackingSpace, which is the pure tracked
-    /// pose - unaffected by the rig root moving - so this reads only real motion.
+    /// physically moved this frame, so real walking covers more ground, and real
+    /// crouching/standing covers more height. Head position is measured inside
+    /// TrackingSpace, which is the pure tracked pose - unaffected by the rig root
+    /// moving - so this reads only real motion.
     /// </summary>
     void HandlePhysicalGain()
     {
         Vector3 headLocal = _trackingSpace.InverseTransformPoint(_head.position);
 
-        if (_hasLastHead && physicalMoveGain > 1f)
+        if (_hasLastHead)
         {
             Vector3 delta = headLocal - _lastHeadLocal;
-            delta.y = 0f; // horizontal only - don't amplify ducking/standing
-            Vector3 worldExtra = _trackingSpace.TransformVector(delta) * (physicalMoveGain - 1f);
-            transform.position += worldExtra;
+
+            if (physicalMoveGain > 1f)
+            {
+                Vector3 horizontalDelta = delta;
+                horizontalDelta.y = 0f;
+                Vector3 worldExtra = _trackingSpace.TransformVector(horizontalDelta) * (physicalMoveGain - 1f);
+                transform.position += worldExtra;
+            }
+
+            if (physicalCrouchGain > 1f)
+            {
+                // Vertical head motion is already "up" in world space regardless of
+                // rig yaw, so this doesn't need TransformVector like the horizontal case.
+                float verticalExtra = delta.y * (physicalCrouchGain - 1f);
+                transform.position += Vector3.up * verticalExtra;
+            }
         }
 
         // Head-local is unchanged by moving the rig root (head and tracking space
@@ -217,6 +239,12 @@ public class SimpleXRLocomotion : MonoBehaviour
     /// </summary>
     void HandleJumpAndGravity()
     {
+        // Clamp to a safe negative value: if gravity is ever set to 0 (or accidentally
+        // positive), the jump-speed formula below would compute sqrt(0) = no jump at all,
+        // and nothing would ever pull the player back down. -0.1 keeps both working even
+        // with a "wrong" Inspector value, while normal use (-9.81) is unaffected.
+        float safeGravity = Mathf.Min(gravity, -0.1f);
+
         // Raycast a little above the feet so it starts outside the floor itself.
         Vector3 rayOrigin = transform.position + Vector3.up * 0.1f;
         _isGrounded = Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, 0.2f, groundMask);
@@ -230,10 +258,10 @@ public class SimpleXRLocomotion : MonoBehaviour
             OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.RTouch))
         {
             // v = sqrt(2 * g * h)
-            _verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            _verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * safeGravity);
         }
 
-        _verticalVelocity += gravity * Time.deltaTime;
+        _verticalVelocity += safeGravity * Time.deltaTime;
         transform.position += Vector3.up * (_verticalVelocity * Time.deltaTime);
 
         // If we fell below where the ground-check said we should be, snap back up
