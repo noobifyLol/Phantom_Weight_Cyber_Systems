@@ -14,6 +14,7 @@ Things that we have to do right now :
 - Equation for picking up with precalculated weight
 
 ## Personal Weight Formula ##
+<img width="461" height="824" alt="image" src="https://github.com/user-attachments/assets/ab58254c-f175-49d1-befd-b85038623c12" />
 
 
 
