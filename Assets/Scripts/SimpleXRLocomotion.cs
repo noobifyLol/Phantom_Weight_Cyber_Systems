@@ -91,6 +91,12 @@ public class SimpleXRLocomotion : MonoBehaviour
              "anything). Raise this so a small real crouch produces a much bigger dip in-game.")]
     public float physicalCrouchGain = 3.0f;
 
+    [Header("Fall recovery (safety net)")]
+    [Tooltip("If you fall further than this many metres below where you started, you get " +
+             "teleported back to your starting spot. Protects against walking off the edge " +
+             "of the map or through a gap in the level's colliders.")]
+    public float maxFallDistance = 5f;
+
     OVRCameraRig _rig;
     Transform _head;
     Transform _trackingSpace;
@@ -108,6 +114,10 @@ public class SimpleXRLocomotion : MonoBehaviour
     // Crouch state
     float _crouchOffsetCurrent;   // how far down we currently are (0 = standing)
     float _crouchVelocity;        // used by SmoothDamp
+
+    // Fall recovery state
+    Vector3 _spawnPosition;
+    bool _hasSpawnPosition;
 
     void Awake()
     {
@@ -134,11 +144,18 @@ public class SimpleXRLocomotion : MonoBehaviour
                 return;
         }
 
+        if (!_hasSpawnPosition)
+        {
+            _spawnPosition = transform.position;
+            _hasSpawnPosition = true;
+        }
+
         HandlePhysicalGain();
         HandleThumbstickMove();
         HandleTurn();
         HandleJumpAndGravity();
         HandleCrouch();
+        HandleFallRecovery();
     }
 
     /// <summary>
@@ -299,5 +316,19 @@ public class SimpleXRLocomotion : MonoBehaviour
         Vector3 local = _trackingSpace.localPosition;
         local.y = _trackingSpaceBaseLocalY - _crouchOffsetCurrent;
         _trackingSpace.localPosition = local;
+    }
+
+    /// <summary>
+    /// Safety net: if you end up falling further than Max Fall Distance below your
+    /// starting height - from walking off an edge, a gap in the map's colliders, or
+    /// anything else - teleport back to the spawn point instead of falling forever.
+    /// </summary>
+    void HandleFallRecovery()
+    {
+        if (transform.position.y >= _spawnPosition.y - maxFallDistance)
+            return;
+
+        transform.position = _spawnPosition;
+        _verticalVelocity = 0f;
     }
 }
