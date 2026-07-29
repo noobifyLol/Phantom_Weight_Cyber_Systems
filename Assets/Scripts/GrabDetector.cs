@@ -5,6 +5,9 @@ using System.IO.Ports;
 
 public class CubeGrabDetector : MonoBehaviour
 {
+    [Header("Block Settings")]
+    public int blockWeight = 0;
+
 
     SerialPort esp = new SerialPort("COM4", 115200);
     private Grabbable grabbable;
@@ -57,13 +60,13 @@ public class CubeGrabDetector : MonoBehaviour
 
     void OnGrabbed()
     {
-        Debug.Log("Cube has been grabbed!");
+        Debug.Log(blockWeight);
         SendLiftCommand();
     }
 
     void OnReleased()
     {
-        Debug.Log("Cube has been released!");
+        Debug.Log(blockWeight);
         SendReleaseCommand();
     }
 

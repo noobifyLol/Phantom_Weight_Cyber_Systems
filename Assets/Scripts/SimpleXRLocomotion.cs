@@ -50,21 +50,6 @@ public class SimpleXRLocomotion : MonoBehaviour
     [Tooltip("How far you must push the right stick sideways before it registers as turning input.")]
     public float turnThreshold = 0.3f;
 
-    [Header("Jump (right \"A\" button)")]
-    [Tooltip("How high a jump goes, in metres.")]
-    public float jumpHeight = 1.0f;
-
-    [Tooltip("How strong gravity pulls you back down after a jump. Higher = faster fall.")]
-    public float gravity = -9.81f;
-
-    [Tooltip("Layers considered 'ground' for jumping/landing. Defaults to Everything - " +
-             "narrow this to your floor layer if jumping feels wrong near other objects.")]
-    public LayerMask groundMask = ~0;
-
-    [Tooltip("Comfort note: vertical camera motion that doesn't match your real body can cause " +
-             "motion sickness for some players. Test carefully; consider making jump optional.")]
-    public bool jumpEnabled = false;
-
     [Header("Crouch (right thumbstick down, held)")]
     [Tooltip("How far (metres) the view drops while crouching.")]
     public float crouchDepth = 0.5f;
@@ -83,6 +68,17 @@ public class SimpleXRLocomotion : MonoBehaviour
              "Raise this if the room feels too big and you barely move.")]
     public float physicalMoveGain = 2.0f;
 
+    [Range(1f, 6f)]
+    [Tooltip("Multiplier on real-world CROUCHING (physically moving your head up/down). " +
+             "1 = natural 1:1 (a 3cm real crouch = 3cm in-game, which feels like barely " +
+             "anything). Raise this so a small real crouch produces a much bigger dip in-game.")]
+    public float physicalCrouchGain = 3.0f;
+
+    [Header("Fall recovery (safety net)")]
+    [Tooltip("If you fall further than this many metres below where you started, you get " +
+             "teleported back to your starting spot. Protects against walking off the edge " +
+             "of the map or through a gap in the level's colliders.")]
+
     OVRCameraRig _rig;
     Transform _head;
     Transform _trackingSpace;
@@ -100,6 +96,10 @@ public class SimpleXRLocomotion : MonoBehaviour
     // Crouch state
     float _crouchOffsetCurrent;   // how far down we currently are (0 = standing)
     float _crouchVelocity;        // used by SmoothDamp
+
+    // Fall recovery state
+    Vector3 _spawnPosition;
+    bool _hasSpawnPosition;
 
     void Awake()
     {
@@ -126,29 +126,49 @@ public class SimpleXRLocomotion : MonoBehaviour
                 return;
         }
 
+        if (!_hasSpawnPosition)
+        {
+            _spawnPosition = transform.position;
+            _hasSpawnPosition = true;
+        }
+
         HandlePhysicalGain();
         HandleThumbstickMove();
         HandleTurn();
-        HandleJumpAndGravity();
         HandleCrouch();
+      
     }
 
     /// <summary>
     /// Option B: adds extra world movement proportional to how far the headset
-    /// physically moved this frame, so real walking covers more ground.
-    /// Head position is measured inside TrackingSpace, which is the pure tracked
-    /// pose - unaffected by the rig root moving - so this reads only real motion.
+    /// physically moved this frame, so real walking covers more ground, and real
+    /// crouching/standing covers more height. Head position is measured inside
+    /// TrackingSpace, which is the pure tracked pose - unaffected by the rig root
+    /// moving - so this reads only real motion.
     /// </summary>
     void HandlePhysicalGain()
     {
         Vector3 headLocal = _trackingSpace.InverseTransformPoint(_head.position);
 
-        if (_hasLastHead && physicalMoveGain > 1f)
+        if (_hasLastHead)
         {
             Vector3 delta = headLocal - _lastHeadLocal;
-            delta.y = 0f; // horizontal only - don't amplify ducking/standing
-            Vector3 worldExtra = _trackingSpace.TransformVector(delta) * (physicalMoveGain - 1f);
-            transform.position += worldExtra;
+
+            if (physicalMoveGain > 1f)
+            {
+                Vector3 horizontalDelta = delta;
+                horizontalDelta.y = 0f;
+                Vector3 worldExtra = _trackingSpace.TransformVector(horizontalDelta) * (physicalMoveGain - 1f) * 3.0f;
+                transform.position += worldExtra ;
+            }
+
+            if (physicalCrouchGain > 1f)
+            {
+                // Vertical head motion is already "up" in world space regardless of
+                // rig yaw, so this doesn't need TransformVector like the horizontal case.
+                float verticalExtra = delta.y * (physicalCrouchGain - 1f);
+                transform.position += Vector3.up * verticalExtra;
+            }
         }
 
         // Head-local is unchanged by moving the rig root (head and tracking space
@@ -210,41 +230,7 @@ public class SimpleXRLocomotion : MonoBehaviour
         transform.RotateAround(_head.position, Vector3.up, snapAngle);
     }
 
-    /// <summary>
-    /// Simple gravity + jump without requiring a CharacterController: a downward
-    /// raycast from the rig root checks for ground, and we integrate a vertical
-    /// velocity by hand. Pressing the right controller's "A" button jumps.
-    /// </summary>
-    void HandleJumpAndGravity()
-    {
-        // Raycast a little above the feet so it starts outside the floor itself.
-        Vector3 rayOrigin = transform.position + Vector3.up * 0.1f;
-        _isGrounded = Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, 0.2f, groundMask);
-
-        if (_isGrounded && _verticalVelocity < 0f)
-        {
-            _verticalVelocity = -1f; // small downward value keeps us stuck to the ground
-        }
-
-        if (jumpEnabled && _isGrounded &&
-            OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.RTouch))
-        {
-            // v = sqrt(2 * g * h)
-            _verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
-        }
-
-        _verticalVelocity += gravity * Time.deltaTime;
-        transform.position += Vector3.up * (_verticalVelocity * Time.deltaTime);
-
-        // If we fell below where the ground-check said we should be, snap back up
-        // onto it so we don't sink through the floor over many frames.
-        if (_isGrounded && _verticalVelocity <= -1f)
-        {
-            float snapUp = rayOrigin.y - hit.point.y - 0.1f;
-            if (snapUp > 0f)
-                transform.position -= Vector3.up * snapUp;
-        }
-    }
+    
 
     /// <summary>
     /// Pushing the right thumbstick down lowers the view by Crouch Depth while held,
@@ -272,4 +258,6 @@ public class SimpleXRLocomotion : MonoBehaviour
         local.y = _trackingSpaceBaseLocalY - _crouchOffsetCurrent;
         _trackingSpace.localPosition = local;
     }
+
+    
 }
