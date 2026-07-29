@@ -1,11 +1,14 @@
 This is the Phantom Weight project.
 
 ## Error Log ##
-Errors that we have solved in the pass, the controller not appearing and the controller inputs are not being detected by the meta XR interaction kit. Assets not loading into unity (they appear purple or with max brightness).
+Errors that we have solved in the pass, the controller not appearing and the controller inputs are not being detected by the meta XR interaction kit. Assets not loading into unity (they appear purple or with max brightness). We also fixed when the hand and controller are connecting at the same time model blend issue where we just did individual states instead of combining them. We also fixed the physical and height move in real life and moving like 3cm by getting the change distance and then scaling with a conversion equation. For this problem "Make the objects smaller because when the person picks up the objects, it looks way to big compared to when the person is far apart (I know that this might be common sense but it's different from our environment which makes the experience less realistic)" by adding grab transformer scripts that constraint size to our grabbable objects.
 
 Things that we have to do right now : 
 - Make the map solid and the blocks solid **(Prince)**
-- Add gravity for the environment and fix the pass through (if we make the headset responsive height we don't have to worry about adding jump or grabvity for the camera which also fixes the passthroguht problem) 
+- Add gravity for the environment and fix the pass through (if we make the headset responsive height we don't have to worry about adding jump or gravity for the camera which also fixes the passthrough problem)
+-Make run and jump controller buttons
+  
+
 
 
 ## Starting out in Unity ##
@@ -15,9 +18,9 @@ In the unity environment, you can download the official unity installer at their
 
 2. First drag the camera rig into your environment.
 
-3. Connect the camera and the controllers into the environemtns
+3. Connect the camera and the controllers into the environments
 
-4. Add the Locomove script to the camera rig so the player can move and control the player in the game using controllers
+4. Add the Loco move script to the camera rig so the player can move and control the player in the game using controllers
 
-5. Add cubes or imported assets and then add the meta blcok grabbable script to it.
+5. Add cubes or imported assets and then add the meta block grabbable script to it.
 
