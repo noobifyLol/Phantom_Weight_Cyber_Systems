@@ -4,11 +4,8 @@ This is the Phantom Weight project.
 Errors that we have solved in the pass, the controller not appearing and the controller inputs are not being detected by the meta XR interaction kit. Assets not loading into unity (they appear purple or with max brightness).
 
 Things that we have to do right now : 
-- Make the headset responsive to it's relative height **(Dat)**
 - Make the map solid and the blocks solid **(Prince)**
 - Add gravity for the environment and fix the pass through (if we make the headset responsive height we don't have to worry about adding jump or grabvity for the camera which also fixes the passthroguht problem) 
-- Fix the jump button and button inputs and make a run function
-- Make the objects smallers because when the person pciks up the objects, it looks way to big comapred to when the person is far apart (I know that this might be common sense but it's different from out environment which makes the experience less realistic) 
 
 
 ## Starting out in Unity ##
