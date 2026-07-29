@@ -8,8 +8,19 @@ Things that we have to do right now :
 - Add gravity for the environment and fix the pass through
 - Make run and jump controller buttons
 - Camera going through a solid object just appears as a grey screen
-  
+- Add calibration start menu
+- Weight selection slider
+- Add dumbbells
+- Equation for picking up with precalculated weight
 
+## Personal Weight Formula ##
+
+
+
+## Hardware coding framework ##
+1. Player picks up item -> Prints out weight assigned to item -> Converts weight to # of button presses through formula in a script
+2. Send # of number of button presses to ESP32 -> through terminal -> EMS how many times to write to OP
+3. When player releases item -> check if grabbing or not -> if not then loop all the way to 0 (need global currentWeight variable which solves dropping and picking up really fast)
 
 
 ## Starting out in Unity ##
