@@ -153,8 +153,8 @@ PlayerSettings:
   - {fileID: 11400000, guid: af9563a884fcc694d85ffb41c9bc760d, type: 2}
   - {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   - {fileID: 11400000, guid: 3b50a4fdb32a1de409602d95bc1330f1, type: 2}
-  - {fileID: 136307449902006524, guid: be7b6caa1b1471e4e9d3f22f5f65273d, type: 2}
   - {fileID: -1179920364009799975, guid: d0701664d5051b74295160d27640524b, type: 2}
+  - {fileID: 136307449902006524, guid: be7b6caa1b1471e4e9d3f22f5f65273d, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   xboxOneDisableKinectGpuReservation: 1
@@ -865,7 +865,8 @@ PlayerSettings:
     XboxOne: UNITY_POST_PROCESSING_STACK_V2
     tvOS: UNITY_POST_PROCESSING_STACK_V2
   additionalCompilerArguments: {}
-  platformArchitecture: {}
+  platformArchitecture:
+    Android: 1
   scriptingBackend:
     Android: 1
   il2cppCompilerConfiguration: {}
