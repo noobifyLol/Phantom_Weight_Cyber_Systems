@@ -11,6 +11,10 @@ public class CompleteVRLocomotion : MonoBehaviour
     [Tooltip("Assign RightHandAnchor (or RightControllerAnchor) here.")]
     public Transform rightHandTransform;
 
+    [Header("Joystick Movement Settings")]
+    public bool useJoystickMove = true;
+    public float joystickMoveSpeed = 3.5f;
+
     [Header("Arm Swing Run Settings")]
     public float swingSensitivity = 2.5f;
     public float maxSpeed = 8.0f;
@@ -77,7 +81,11 @@ public class CompleteVRLocomotion : MonoBehaviour
         HandleTurn();
         HandleCrouch();
 
-        Vector3 totalHorizontalMove = CalculateArmSwingMovement() + CalculatePhysicalGainMovement();
+        // Combines Arm Swing, Joystick input, and Physical Room Scale Gain
+        Vector3 totalHorizontalMove = CalculateArmSwingMovement() 
+                                    + CalculateJoystickMovement() 
+                                    + CalculatePhysicalGainMovement();
+
         HandleGravityAndJump(ref totalHorizontalMove);
 
         // Single atomic call ensures all movement respects scene physics/colliders
@@ -86,12 +94,39 @@ public class CompleteVRLocomotion : MonoBehaviour
 
     private void SyncColliderToHeadset()
     {
-        float headHeight = Mathf.Clamp(headTransform.localPosition.y, 1.0f, 2.2f);
+        float actualY = headTransform.localPosition.y;
+        float headHeight = (actualY < 0.2f) ? 1.75f : Mathf.Clamp(actualY, 1.0f, 2.2f);
+
         _characterController.height = headHeight;
 
-        Vector3 newCenter = headTransform.localPosition;
-        newCenter.y = _characterController.height / 2f;
+        Vector3 newCenter = Vector3.zero;
+        newCenter.x = headTransform.localPosition.x;
+        newCenter.z = headTransform.localPosition.z;
+        newCenter.y = headHeight / 2f; 
+
         _characterController.center = newCenter;
+    }
+
+    private Vector3 CalculateJoystickMovement()
+    {
+        if (!useJoystickMove) return Vector3.zero;
+
+        // Reads Left Thumbstick input (X = Strafe, Y = Forward/Back)
+        Vector2 primaryAxis = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick);
+
+        if (primaryAxis.magnitude < 0.1f) return Vector3.zero;
+
+        // Align movement relative to where the headset is pointing
+        Vector3 forward = headTransform.forward;
+        Vector3 right = headTransform.right;
+
+        forward.y = 0f;
+        right.y = 0f;
+        forward.Normalize();
+        right.Normalize();
+
+        Vector3 moveDir = (forward * primaryAxis.y) + (right * primaryAxis.x);
+        return moveDir * joystickMoveSpeed;
     }
 
     private Vector3 CalculateArmSwingMovement()
