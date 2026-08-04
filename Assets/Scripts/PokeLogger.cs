@@ -8,5 +8,17 @@ public class PokeLogger : MonoBehaviour
     public void LogPoke()
     {
         Debug.Log(messageToPrint);
+
+        // Find the canvas by name and disable it
+        GameObject disclaimer = GameObject.Find("DisclaimerCanvas");
+
+        if (disclaimer != null)
+        {
+            disclaimer.SetActive(false);
+        }
+        else
+        {
+            Debug.LogWarning("DisclaimerCanvas not found in the scene.");
+        }
     }
 }

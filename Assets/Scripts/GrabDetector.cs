@@ -6,10 +6,9 @@ using System.Collections.Generic;
 using System.IO.Ports;
 #endif
 
-public class CubeGrabDetector : MonoBehaviour
+public class GrabDetector : MonoBehaviour
 {
     [Header("Block Settings")]
-    public double blockWeight = 30.0;
     public string defaultPort = "COM4";
 
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN
@@ -18,6 +17,8 @@ public class CubeGrabDetector : MonoBehaviour
 
     private Grabbable grabbable;
     private OVRCameraRig rig;
+    private PlateFillPercent plateFillPercent;
+
     private Transform leftHandAnchor;
     private Transform rightHandAnchor;
 
@@ -27,7 +28,10 @@ public class CubeGrabDetector : MonoBehaviour
     void Start()
     {
         grabbable = GetComponent<Grabbable>();
+
         rig = FindAnyObjectByType<OVRCameraRig>();
+        plateFillPercent = FindAnyObjectByType<PlateFillPercent>();
+
         if (rig != null)
         {
             leftHandAnchor = rig.leftHandAnchor;
@@ -36,6 +40,7 @@ public class CubeGrabDetector : MonoBehaviour
 
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN
         esp = new SerialPort(defaultPort, 115200);
+
         try
         {
             esp.Open();
@@ -55,17 +60,18 @@ public class CubeGrabDetector : MonoBehaviour
 
         HashSet<string> currentFrameHands = new HashSet<string>();
 
-        // Each active grab point (one per selecting hand/controller) becomes a hand label
+        // Detect all hands currently grabbing
         foreach (Pose point in grabbable.SelectingPoints)
         {
             string hand = GetHandFromPose(point);
+
             if (!string.IsNullOrEmpty(hand))
             {
                 currentFrameHands.Add(hand);
             }
         }
 
-        // 1. Send Lift command for newly grabbed hand(s)
+        // Send Lift command for newly grabbing hands
         foreach (string hand in currentFrameHands)
         {
             if (!activeGrabbingHands.Contains(hand))
@@ -75,8 +81,9 @@ public class CubeGrabDetector : MonoBehaviour
             }
         }
 
-        // 2. Send Release command for hand(s) let go this frame
+        // Send Release command for hands that let go
         List<string> handsToRelease = new List<string>();
+
         foreach (string hand in activeGrabbingHands)
         {
             if (!currentFrameHands.Contains(hand))
@@ -92,16 +99,11 @@ public class CubeGrabDetector : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Grabbable.SelectingPoints only gives grab-point poses, not which hand/interactor
-    /// produced them. Identify the hand by whichever tracked hand anchor is closest to
-    /// this grab point at the moment of the check.
-    /// </summary>
     private string GetHandFromPose(Pose point)
     {
         if (leftHandAnchor == null || rightHandAnchor == null)
         {
-            return "Left"; // Fallback if rig wasn't found
+            return "Left"; // Fallback
         }
 
         float leftDist = Vector3.Distance(point.position, leftHandAnchor.position);
@@ -115,8 +117,16 @@ public class CubeGrabDetector : MonoBehaviour
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN
         if (esp != null && esp.IsOpen)
         {
-            // Matches ESP32 parsing: Command,Weight,Hand -> "Lift,30,Left"
-            string payload = $"Lift,{blockWeight},{hand}";
+            int weight = 0;
+
+            if (plateFillPercent != null)
+            {
+                weight = Mathf.RoundToInt(plateFillPercent.percent);
+            }
+
+            // ESP32 format: Command,Weight,Hand
+            string payload = $"Lift,{weight},{hand}";
+
             esp.WriteLine(payload);
             Debug.Log($"Sent: {payload}");
         }
@@ -128,8 +138,9 @@ public class CubeGrabDetector : MonoBehaviour
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN
         if (esp != null && esp.IsOpen)
         {
-            // Matches ESP32 parsing: Command,Weight,Hand -> "Release,0,Left"
+            // ESP32 format: Command,Weight,Hand
             string payload = $"Release,0,{hand}";
+
             esp.WriteLine(payload);
             Debug.Log($"Sent: {payload}");
         }
