@@ -1,0 +1,14 @@
+/Library
+/Temp
+/Obj
+/Logs
+/UserSettings
+/*.csproj
+/*.sln
+/*.slnx
+/Build
+/Builds
+/*.BackUpThisFolder_ButDontShipItWithYourGame
+/.utmp
+/*_BurstDebugInformation_DoNotShip
+/.qodo

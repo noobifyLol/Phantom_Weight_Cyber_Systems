@@ -14,6 +14,10 @@
 /[Bb]uild/
 /.utmp/
 *_BackUpThisFolder_ButDontShipItWithYourGame/
+*_BurstDebugInformation_DoNotShip/
+
+# Qodo AI tool local state
+/.qodo/
 
 # Performance Test Framework run artifacts - regenerated on each test/build run
 /[Aa]ssets/[Rr]esources/PerformanceTestRun*.json

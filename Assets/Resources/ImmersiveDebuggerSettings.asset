@@ -21,6 +21,9 @@ MonoBehaviour:
     DebugTypes:
     - TestSceneUsage
     - UIEditorSetup
+  - AssemblyName: Meta.XR.ImmersiveDebugger.DevAgent
+    DebugTypes:
+    - Meta.XR.ImmersiveDebugger.DevAgent.DictationController
   immersiveDebuggerEnabled: 1
   immersiveDebuggerDisplayAtStartup: 0
   enableOnlyInDebugBuild: 0
