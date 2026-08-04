@@ -8,7 +8,9 @@ Things that we have to do right now :
 - Make the calibration screen
 - Fix box colliders when picking up
 - Fix running motion
-- Make cube pickup to stop teleporting with physics
+- Make cube pickups to stop teleporting with physics
+- Make the slider not flat
+- Connect ESP32 wirelessly
   
 
 ### Full error log (reconstructed from Git + Plastic version control history) ###
