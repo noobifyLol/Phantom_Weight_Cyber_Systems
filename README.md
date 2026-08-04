@@ -6,6 +6,9 @@ Errors that we have solved in the pass, the controller not appearing and the con
 Things that we have to do right now : 
 - Add gravity for the environment and fix the pass through
 - Make the calibration screen
+- Fix box colliders when picking up
+- Fix running motion
+- Make cube pickup to stop teleporting with physics
   
 
 ### Full error log (reconstructed from Git + Plastic version control history) ###
