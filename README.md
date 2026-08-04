@@ -6,6 +6,11 @@ Errors that we have solved in the pass, the controller not appearing and the con
 Things that we have to do right now : 
 - Add gravity for the environment and fix the pass through
 - Make the calibration screen
+- Fix box colliders when picking up
+- Fix running motion
+- Make cube pickups to stop teleporting with physics
+- Make the slider not flat
+- Connect ESP32 wirelessly
   
 
 ### Full error log (reconstructed from Git + Plastic version control history) ###
