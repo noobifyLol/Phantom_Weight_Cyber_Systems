@@ -13,25 +13,18 @@ public class PlateFillPercent : MonoBehaviour
     [Header("Label Offset")]
     public Vector3 labelOffset = new Vector3(0f, 0.5f, 0f);
 
-    // 0-100, kept in sync every frame. Read by GrabDetector (weight sent to the ESP32)
-    // and WeightScaleCube (invisible-weight visualization).
-    public float percent { get; private set; }
+    // Accessible from other scripts
+    public float percent;
 
     private void Update()
     {
-        // Calculate percentage
-        float t = Mathf.InverseLerp(maxX, minX, transform.position.x);
+        percent = Mathf.InverseLerp(maxX, minX, transform.position.x) * 100f;
 
-        // Clamp and convert to 0-100
-        int displayPercent = Mathf.RoundToInt(t * 100f);
-        percent = displayPercent;
+        int displayPercent = Mathf.RoundToInt(percent);
 
-        // Update text
         if (percentLabel != null)
         {
             percentLabel.text = displayPercent + "%";
-
-            // Keep label above the plate
             percentLabel.transform.position = transform.position + labelOffset;
         }
     }
