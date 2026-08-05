@@ -16,13 +16,19 @@ using Oculus.Interaction;
 [RequireComponent(typeof(Grabbable))]
 public class GrabDetector : MonoBehaviour
 {
-    [Header("Optional overrides")]
-    [Tooltip("Leave blank to auto-find. Use it if you need to point at a specific slider.")]
-    public PlateFillPercent weightSource;
+    [Header("Block Settings")]
+    public string defaultPort = "COM4";
 
-    private Grabbable _grabbable;
-    private Transform _leftAnchor;
-    private Transform _rightAnchor;
+#if UNITY_EDITOR || UNITY_STANDALONE_WIN
+    private SerialPort esp;
+#endif
+
+    private Grabbable grabbable;
+    private OVRCameraRig rig;
+    private PlateFillPercent plateFillPercent;
+
+    private Transform leftHandAnchor;
+    private Transform rightHandAnchor;
 
     // pointer id -> hand string that owns the current select, so we can
     // emit exactly one Release per Select even if hover events come between.

@@ -14,7 +14,7 @@ public class PlateFillPercent : MonoBehaviour
 {
     [Header("Plate X Range (knob world X at 0% and 100%)")]
     public float maxX = -0.213f; // 0%
-    public float minX = -4.106f;  // 100%
+    public float minX = -4.106f; // 100%
 
     [Header("Percent readout (optional)")]
     public TMP_Text percentLabel;

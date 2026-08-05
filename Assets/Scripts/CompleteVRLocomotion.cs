@@ -66,6 +66,7 @@ public class CompleteVRLocomotion : MonoBehaviour
     private Vector3 _previousRightPos;
     private Vector3 _lastHeadLocal;
     private bool _hasLastHead;
+    private float _lastHeadLocalY; // raw headTransform.localPosition.y, used only by height gain (see HandleCrouch)
 
     private float _currentVerticalSpeed;
     private bool _turnArmed = true;
@@ -291,13 +292,29 @@ public class CompleteVRLocomotion : MonoBehaviour
 
     private void HandleCrouch()
     {
-        if (_trackingSpace == null) return;
+        if (_trackingSpace == null || headTransform == null) return;
 
         if (!_hasTrackingSpaceBaseY)
         {
             _trackingSpaceBaseLocalY = _trackingSpace.localPosition.y;
             _hasTrackingSpaceBaseY = true;
+            _lastHeadLocalY = headTransform.localPosition.y;
         }
+
+        // Physical height gain: fold amplified REAL vertical head movement into the
+        // moving base height, on top of the plain 1:1 tracking you already get for
+        // free. Reads headTransform.localPosition.y — the same raw, un-amplified
+        // signal SyncColliderToHeadset() uses — rather than anything derived from
+        // _trackingSpace's own position, because _trackingSpace.localPosition.y is
+        // what this method is about to move; measuring "real" delta from a value we
+        // just changed would feed the amplified motion back into itself every frame.
+        float headLocalY = headTransform.localPosition.y;
+        if (heightGain > 1.0f)
+        {
+            float verticalDelta = headLocalY - _lastHeadLocalY;
+            _trackingSpaceBaseLocalY -= verticalDelta * (heightGain - 1.0f);
+        }
+        _lastHeadLocalY = headLocalY;
 
         float y = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick).y;
         bool wantsCrouch = y < -crouchThreshold;
