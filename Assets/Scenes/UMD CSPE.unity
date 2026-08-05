@@ -12885,7 +12885,7 @@ PrefabInstance:
       value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 4629893435701969339, guid: 0a7d2469f24041c4284c66706f84c45e, type: 3}
-      propertyPath: '_interactors.Array.data[11]'
+      propertyPath: _interactors.Array.data[11]
       value: 
       objectReference: {fileID: 747446712}
     - target: {fileID: 4640509026444262875, guid: 0a7d2469f24041c4284c66706f84c45e, type: 3}
@@ -16357,7 +16357,7 @@ PrefabInstance:
       value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 8779972744546753495, guid: 0a7d2469f24041c4284c66706f84c45e, type: 3}
-      propertyPath: '_interactors.Array.data[11]'
+      propertyPath: _interactors.Array.data[11]
       value: 
       objectReference: {fileID: 353304574}
     - target: {fileID: 8790590387445845560, guid: 0a7d2469f24041c4284c66706f84c45e, type: 3}
@@ -27114,7 +27114,6 @@ GameObject:
   - component: {fileID: 1078647578}
   - component: {fileID: 1078647577}
   - component: {fileID: 1078647576}
-  - component: {fileID: 1078647579}
   m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
@@ -27139,7 +27138,7 @@ MonoBehaviour:
   rightHandTransform: {fileID: 1348888868}
   useJoystickMove: 1
   joystickMoveSpeed: 3.75
-  swingSensitivity: 1
+  swingSensitivity: 3
   maxSpeed: 8
   minSwing: 5
   swingInputSmoothing: 0.75
@@ -27154,6 +27153,7 @@ MonoBehaviour:
   crouchTransitionTime: 0.25
   crouchThreshold: 0.6
   physicalMoveGain: 3
+  heightGain: 2
   recenterButton: 2
   recenterEyeHeight: 1.7
 --- !u!143 &1078647577
@@ -27197,23 +27197,6 @@ Transform:
   - {fileID: 566030625}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1078647579
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1078647575}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d695dc841b5c9014285349e7e2485ef3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::playerPushScript
-  pushPower: 0.15
-  pushableLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  stepOffset: 0.05
 --- !u!1 &1081021029
 GameObject:
   m_ObjectHideFlags: 0
@@ -31760,7 +31743,7 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -3285122006526915253, guid: b5fd8ce01faadf8458a2494ffc24a994, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
+      propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 3f1dd380d23271b49ba05d4def420373, type: 2}
     - target: {fileID: -687985854977103510, guid: b5fd8ce01faadf8458a2494ffc24a994, type: 3}
@@ -31780,7 +31763,7 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8179984299170073550, guid: b5fd8ce01faadf8458a2494ffc24a994, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
+      propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 3f1dd380d23271b49ba05d4def420373, type: 2}
     m_RemovedComponents: []
@@ -31804,10 +31787,10 @@ PrefabInstance:
       addedObject: {fileID: 1382656988}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b5fd8ce01faadf8458a2494ffc24a994, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1382656991}
+      addedObject: {fileID: 1382656993}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b5fd8ce01faadf8458a2494ffc24a994, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1382656993}
+      addedObject: {fileID: 1382656994}
   m_SourcePrefab: {fileID: 100100000, guid: b5fd8ce01faadf8458a2494ffc24a994, type: 3}
 --- !u!1 &1382656984 stripped
 GameObject:
@@ -31920,29 +31903,6 @@ MonoBehaviour:
   _useClosestPointAsGrabSource: 0
   _releaseDistance: 0
   _resetGrabOnGrabsUpdated: 1
---- !u!114 &1382656991
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1382656984}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 96d335ac4d4be2f4287ef6409253eb82, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DumbbellWeight
-  slider: {fileID: 1659382486}
-  minMassKg: 0.5
-  maxMassKg: 12
-  minDisplayLb: 2
-  maxDisplayLb: 25
-  tintTargets: []
-  lightColor: {r: 0.85, g: 0.85, b: 0.9, a: 1}
-  heavyColor: {r: 0.28, g: 0.08, b: 0.1, a: 1}
-  colorProperty: _BaseColor
-  weightLabel: {fileID: 0}
-  labelFormat: '{0:0} lb'
 --- !u!114 &1382656993
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32006,6 +31966,27 @@ MonoBehaviour:
         Min: 1
         Max: 1
   _resetScaleResponsivenessOnConstraintOvershoot: 0
+--- !u!65 &1382656994
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1382656984}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.05, y: 0.05, z: 0.05}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1388181278
 GameObject:
   m_ObjectHideFlags: 0

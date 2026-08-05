@@ -18,11 +18,10 @@
       "hash": "4ce7dd3cc54e37e2ed6dc59cb5a047f3dccb3f50"
     },
     "com.meta.xr.sdk.audio": {
-      "version": "85.0.0",
+      "version": "file:com.meta.xr.sdk.audio",
       "depth": 0,
-      "source": "registry",
-      "dependencies": {},
-      "url": "https://packages.unity.com"
+      "source": "embedded",
+      "dependencies": {}
     },
     "com.meta.xr.sdk.core": {
       "version": "205.0.0",
@@ -102,13 +101,12 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ai.navigation": {
-      "version": "2.0.13",
+      "version": "file:com.unity.ai.navigation",
       "depth": 0,
-      "source": "registry",
+      "source": "embedded",
       "dependencies": {
         "com.unity.modules.ai": "1.0.0"
-      },
-      "url": "https://packages.unity.com"
+      }
     },
     "com.unity.burst": {
       "version": "1.8.29",
