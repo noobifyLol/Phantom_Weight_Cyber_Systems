@@ -17,3 +17,4 @@ MonoBehaviour:
   MaxSimultaneousCanvases: 4
   CanvasRenderLayer: 31
   HiddenCanvasLayer: -1
+  FlipOverlayCanvasYInEditor: 0

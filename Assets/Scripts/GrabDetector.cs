@@ -1,159 +1,99 @@
+// Sits on each grabbable object and reports Lift/Release events to the
+// ESP32 (via the shared Esp32Bridge). Which hand did the grabbing is
+// decided by proximity of the grab-point pose to the OVR hand anchors,
+// because Meta's PointableElement doesn't expose per-hand identity.
+//
+// This version is EVENT-DRIVEN instead of the old per-frame polling loop:
+// we subscribe to `Grabbable.WhenPointerEventRaised` and only do work on
+// Select / Unselect. Four scripts polling every Update was measurable on
+// Quest 3, and the polling also meant a hand that grabbed and let go
+// inside a single frame could be missed — the event API doesn't drop it.
+
 using UnityEngine;
-using Oculus.Interaction;
 using System.Collections.Generic;
+using Oculus.Interaction;
 
-#if UNITY_EDITOR || UNITY_STANDALONE_WIN
-using System.IO.Ports;
-#endif
-
+[RequireComponent(typeof(Grabbable))]
 public class GrabDetector : MonoBehaviour
 {
-    [Header("Block Settings")]
-    public string defaultPort = "COM4";
+    [Header("Optional overrides")]
+    [Tooltip("Leave blank to auto-find. Use it if you need to point at a specific slider.")]
+    public PlateFillPercent weightSource;
 
-#if UNITY_EDITOR || UNITY_STANDALONE_WIN
-    private SerialPort esp;
-#endif
+    private Grabbable _grabbable;
+    private Transform _leftAnchor;
+    private Transform _rightAnchor;
 
-    private Grabbable grabbable;
-    private OVRCameraRig rig;
-    private PlateFillPercent plateFillPercent;
+    // pointer id -> hand string that owns the current select, so we can
+    // emit exactly one Release per Select even if hover events come between.
+    private readonly Dictionary<int, string> _activeGrabs = new Dictionary<int, string>();
 
-    private Transform leftHandAnchor;
-    private Transform rightHandAnchor;
-
-    // Track active grabbing hands independently for multi-hand grabs
-    private HashSet<string> activeGrabbingHands = new HashSet<string>();
+    void Awake()
+    {
+        _grabbable = GetComponent<Grabbable>();
+    }
 
     void Start()
     {
-        grabbable = GetComponent<Grabbable>();
-
-        rig = FindAnyObjectByType<OVRCameraRig>();
-        plateFillPercent = FindAnyObjectByType<PlateFillPercent>();
-
+        var rig = FindAnyObjectByType<OVRCameraRig>();
         if (rig != null)
         {
-            leftHandAnchor = rig.leftHandAnchor;
-            rightHandAnchor = rig.rightHandAnchor;
+            _leftAnchor = rig.leftHandAnchor;
+            _rightAnchor = rig.rightHandAnchor;
         }
 
-#if UNITY_EDITOR || UNITY_STANDALONE_WIN
-        esp = new SerialPort(defaultPort, 115200);
-
-        try
-        {
-            esp.Open();
-            esp.ReadTimeout = 100;
-            Debug.Log($"ESP32 Connected on {defaultPort}!");
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogWarning($"ESP32 not connected ({defaultPort} unavailable): {e.Message}");
-        }
-#endif
+        if (weightSource == null) weightSource = FindAnyObjectByType<PlateFillPercent>();
     }
 
-    void Update()
+    void OnEnable()
     {
-        if (grabbable == null) return;
-
-        HashSet<string> currentFrameHands = new HashSet<string>();
-
-        // Detect all hands currently grabbing
-        foreach (Pose point in grabbable.SelectingPoints)
-        {
-            string hand = GetHandFromPose(point);
-
-            if (!string.IsNullOrEmpty(hand))
-            {
-                currentFrameHands.Add(hand);
-            }
-        }
-
-        // Send Lift command for newly grabbing hands
-        foreach (string hand in currentFrameHands)
-        {
-            if (!activeGrabbingHands.Contains(hand))
-            {
-                activeGrabbingHands.Add(hand);
-                SendLiftCommand(hand);
-            }
-        }
-
-        // Send Release command for hands that let go
-        List<string> handsToRelease = new List<string>();
-
-        foreach (string hand in activeGrabbingHands)
-        {
-            if (!currentFrameHands.Contains(hand))
-            {
-                handsToRelease.Add(hand);
-            }
-        }
-
-        foreach (string hand in handsToRelease)
-        {
-            activeGrabbingHands.Remove(hand);
-            SendReleaseCommand(hand);
-        }
+        if (_grabbable != null) _grabbable.WhenPointerEventRaised += OnPointerEvent;
     }
 
-    private string GetHandFromPose(Pose point)
+    void OnDisable()
     {
-        if (leftHandAnchor == null || rightHandAnchor == null)
-        {
-            return "Left"; // Fallback
-        }
-
-        float leftDist = Vector3.Distance(point.position, leftHandAnchor.position);
-        float rightDist = Vector3.Distance(point.position, rightHandAnchor.position);
-
-        return leftDist <= rightDist ? "Left" : "Right";
+        if (_grabbable != null) _grabbable.WhenPointerEventRaised -= OnPointerEvent;
     }
 
-    public void SendLiftCommand(string hand)
+    private void OnPointerEvent(PointerEvent evt)
     {
-#if UNITY_EDITOR || UNITY_STANDALONE_WIN
-        if (esp != null && esp.IsOpen)
+        // We only care about the moment a grab starts and the moment it ends.
+        // Hover / move / cancel don't drive EMS.
+        switch (evt.Type)
         {
-            int weight = 0;
-
-            if (plateFillPercent != null)
+            case PointerEventType.Select:
             {
-                weight = Mathf.RoundToInt(plateFillPercent.percent);
+                string hand = ClosestHand(evt.Pose.position);
+                _activeGrabs[evt.Identifier] = hand;
+                int weight = weightSource != null
+                    ? Mathf.RoundToInt(weightSource.percent)
+                    : 0;
+                var payload = $"Lift,{weight},{hand}";
+                Esp32Bridge.Send(payload);
+                Debug.Log($"[GrabDetector:{name}] {payload}");
+                break;
             }
 
-            // ESP32 format: Command,Weight,Hand
-            string payload = $"Lift,{weight},{hand}";
-
-            esp.WriteLine(payload);
-            Debug.Log($"Sent: {payload}");
+            case PointerEventType.Unselect:
+            case PointerEventType.Cancel:
+            {
+                if (_activeGrabs.TryGetValue(evt.Identifier, out string hand))
+                {
+                    _activeGrabs.Remove(evt.Identifier);
+                    var payload = $"Release,0,{hand}";
+                    Esp32Bridge.Send(payload);
+                    Debug.Log($"[GrabDetector:{name}] {payload}");
+                }
+                break;
+            }
         }
-#endif
     }
 
-    public void SendReleaseCommand(string hand)
+    private string ClosestHand(Vector3 point)
     {
-#if UNITY_EDITOR || UNITY_STANDALONE_WIN
-        if (esp != null && esp.IsOpen)
-        {
-            // ESP32 format: Command,Weight,Hand
-            string payload = $"Release,0,{hand}";
-
-            esp.WriteLine(payload);
-            Debug.Log($"Sent: {payload}");
-        }
-#endif
-    }
-
-    void OnApplicationQuit()
-    {
-#if UNITY_EDITOR || UNITY_STANDALONE_WIN
-        if (esp != null && esp.IsOpen)
-        {
-            esp.Close();
-        }
-#endif
+        if (_leftAnchor == null || _rightAnchor == null) return "Left";
+        float l = (point - _leftAnchor.position).sqrMagnitude;
+        float r = (point - _rightAnchor.position).sqrMagnitude;
+        return l <= r ? "Left" : "Right";
     }
 }
