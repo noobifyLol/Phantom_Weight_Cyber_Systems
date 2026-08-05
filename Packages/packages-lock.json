@@ -1,15 +1,56 @@
 {
   "dependencies": {
-    "com.meta.xr.mrutilitykit": {
-      "version": "file:com.meta.xr.mrutilitykit",
+    "com.coplaydev.unity-mcp": {
+      "version": "https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main",
       "depth": 0,
-      "source": "embedded",
+      "source": "git",
       "dependencies": {
-        "com.unity.ai.navigation": "1.1.4",
+        "com.unity.modules.animation": "1.0.0",
+        "com.unity.modules.imageconversion": "1.0.0",
+        "com.unity.modules.physics": "1.0.0",
+        "com.unity.modules.physics2d": "1.0.0",
+        "com.unity.modules.uielements": "1.0.0",
+        "com.unity.modules.screencapture": "1.0.0",
+        "com.unity.modules.unitywebrequest": "1.0.0",
         "com.unity.nuget.newtonsoft-json": "3.0.2",
-        "com.meta.xr.sdk.core": "203.0.0",
-        "com.unity.textmeshpro": "3.0.6"
-      }
+        "com.unity.test-framework": "1.1.31"
+      },
+      "hash": "c14de1e6dc01ab42d2bb358730cff954bce0ce6b"
+    },
+    "com.meta.xr.mrutilitykit": {
+      "version": "205.0.0",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.meta.xr.sdk.core": "205.0.0",
+        "com.unity.textmeshpro": "3.0.6",
+        "com.unity.ai.navigation": "1.1.4",
+        "com.unity.nuget.newtonsoft-json": "3.0.2"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.meta.xr.sdk.all": {
+      "version": "205.0.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.meta.xr.sdk.core": "205.0.0",
+        "com.meta.xr.sdk.audio": "85.0.0",
+        "com.meta.xr.sdk.voice": "85.0.1",
+        "com.meta.xr.sdk.haptics": "205.0.0",
+        "com.meta.xr.mrutilitykit": "205.0.0",
+        "com.meta.xr.sdk.platform": "205.0.0",
+        "com.meta.xr.sdk.interaction": "205.0.0",
+        "com.meta.xr.sdk.interaction.ovr": "205.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.meta.xr.sdk.audio": {
+      "version": "85.0.0",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
     },
     "com.meta.xr.sdk.core": {
       "version": "file:com.meta.xr.sdk.core",
@@ -25,6 +66,15 @@
         "com.unity.xr.hands": "1.7.2"
       }
     },
+    "com.meta.xr.sdk.haptics": {
+      "version": "205.0.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.meta.xr.sdk.core": "205.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.meta.xr.sdk.interaction": {
       "version": "file:com.meta.xr.sdk.interaction",
       "depth": 0,
@@ -33,6 +83,34 @@
         "com.unity.textmeshpro": "3.0.6",
         "com.unity.ugui": "1.0.0"
       }
+    },
+    "com.meta.xr.sdk.interaction.ovr": {
+      "version": "205.0.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.meta.xr.sdk.core": "205.0.0",
+        "com.meta.xr.sdk.interaction": "205.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.meta.xr.sdk.platform": {
+      "version": "205.0.0",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.ugui": "1.0.0",
+        "com.unity.inputsystem": "1.7.0",
+        "com.unity.nuget.newtonsoft-json": "3.2.1"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.meta.xr.sdk.voice": {
+      "version": "85.0.1",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
     },
     "com.unity.2d.sprite": {
       "version": "1.0.0",

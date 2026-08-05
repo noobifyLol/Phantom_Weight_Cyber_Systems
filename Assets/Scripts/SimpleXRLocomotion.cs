@@ -153,7 +153,6 @@ public class SimpleXRLocomotion : MonoBehaviour
         HandlePhysicalGain();
         HandleThumbstickMove();
         HandleTurn();
-        HandleJumpAndGravity();
         HandleCrouch();
         HandleFallRecovery();
     }
