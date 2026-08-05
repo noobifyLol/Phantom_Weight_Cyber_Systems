@@ -16,15 +16,9 @@ using Oculus.Interaction;
 [RequireComponent(typeof(Grabbable))]
 public class GrabDetector : MonoBehaviour
 {
-<<<<<<< Updated upstream
-    [Header("Block Settings")]
-    public int blockWeight = 0;
-
-=======
     [Header("Optional overrides")]
     [Tooltip("Leave blank to auto-find. Use it if you need to point at a specific slider.")]
     public PlateFillPercent weightSource;
->>>>>>> Stashed changes
 
     private Grabbable _grabbable;
     private Transform _leftAnchor;
@@ -97,26 +91,9 @@ public class GrabDetector : MonoBehaviour
 
     private string ClosestHand(Vector3 point)
     {
-<<<<<<< Updated upstream
-        Debug.Log(blockWeight);
-        SendLiftCommand();
-    }
-
-    void OnReleased()
-    {
-        Debug.Log(blockWeight);
-        SendReleaseCommand();
-    }
-
-    void OnApplicationQuit() {
-        if (esp.IsOpen) {
-            esp.Close();
-        }
-=======
         if (_leftAnchor == null || _rightAnchor == null) return "Left";
         float l = (point - _leftAnchor.position).sqrMagnitude;
         float r = (point - _rightAnchor.position).sqrMagnitude;
         return l <= r ? "Left" : "Right";
->>>>>>> Stashed changes
     }
 }

@@ -33,15 +33,8 @@ MonoBehaviour:
   meshRendererLayer: 21
   overlayDepth: 10
   useOverlay: 1
-<<<<<<< Updated upstream
-  inspectedDataEnabled: 0101
-  inspectedDataAssets:
-  - {fileID: 11400000, guid: 7d2b5c7a7c5e53542ab61e3e1f5a2785, type: 2}
-  - {fileID: 11400000, guid: 168f7a776bb65884397aab8376e40c7d, type: 2}
-=======
   inspectedDataEnabled: 
   inspectedDataAssets: []
->>>>>>> Stashed changes
   useCustomIntegrationConfig: 0
   customIntegrationConfigClassName: 
   hierarchyViewShowsPrivateMembers: 0
