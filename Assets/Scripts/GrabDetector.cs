@@ -1,81 +1,82 @@
-// Sits on each grabbable object and reports Lift/Release events to the
-// ESP32 (via the shared Esp32Bridge). Which hand did the grabbing is
-// decided by proximity of the grab-point pose to the OVR hand anchors,
-// because Meta's PointableElement doesn't expose per-hand identity.
-//
-// This version is EVENT-DRIVEN instead of the old per-frame polling loop:
-// we subscribe to `Grabbable.WhenPointerEventRaised` and only do work on
-// Select / Unselect. Four scripts polling every Update was measurable on
-// Quest 3, and the polling also meant a hand that grabbed and let go
-// inside a single frame could be missed — the event API doesn't drop it.
-
 using UnityEngine;
 using System.Collections.Generic;
+using System.IO.Ports; // Added to resolve SerialPort namespace
 using Oculus.Interaction;
 
 [RequireComponent(typeof(Grabbable))]
 public class GrabDetector : MonoBehaviour
 {
+    [Header("Optional overrides")]
+    [Tooltip("Leave blank to auto-find.")]
+    public PlateFillPercent plateFillPercent;
     [Header("Block Settings")]
     public string defaultPort = "COM4";
+
+    [Header("Rig Reference")]
+    public OVRCameraRig rig;
 
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN
     private SerialPort esp;
 #endif
 
     private Grabbable grabbable;
-    private OVRCameraRig rig;
-    private PlateFillPercent plateFillPercent;
 
     private Transform leftHandAnchor;
     private Transform rightHandAnchor;
 
-    // pointer id -> hand string that owns the current select, so we can
-    // emit exactly one Release per Select even if hover events come between.
-    private readonly Dictionary<int, string> _activeGrabs = new Dictionary<int, string>();
+    // Tracks which hand is holding each pointer ID.
+    private readonly Dictionary<int, string> activeGrabs = new Dictionary<int, string>();
 
     void Awake()
     {
-        _grabbable = GetComponent<Grabbable>();
-    }
+        grabbable = GetComponent<Grabbable>();
 
-    void Start()
-    {
-        var rig = FindAnyObjectByType<OVRCameraRig>();
+        // 1. Only auto-find if not assigned via Inspector
+        if (plateFillPercent == null)
+            plateFillPercent = GetComponent<PlateFillPercent>();
+
+        if (plateFillPercent == null)
+            plateFillPercent = FindAnyObjectByType<PlateFillPercent>();
+
+        // 2. Resolve Rig early in Awake instead of Start
+        if (rig == null)
+            rig = FindAnyObjectByType<OVRCameraRig>();
+
         if (rig != null)
         {
-            _leftAnchor = rig.leftHandAnchor;
-            _rightAnchor = rig.rightHandAnchor;
+            leftHandAnchor = rig.leftHandAnchor;
+            rightHandAnchor = rig.rightHandAnchor;
         }
-
-        if (weightSource == null) weightSource = FindAnyObjectByType<PlateFillPercent>();
     }
 
     void OnEnable()
     {
-        if (_grabbable != null) _grabbable.WhenPointerEventRaised += OnPointerEvent;
+        if (grabbable != null)
+            grabbable.WhenPointerEventRaised += OnPointerEvent;
     }
 
     void OnDisable()
     {
-        if (_grabbable != null) _grabbable.WhenPointerEventRaised -= OnPointerEvent;
+        if (grabbable != null)
+            grabbable.WhenPointerEventRaised -= OnPointerEvent;
     }
 
     private void OnPointerEvent(PointerEvent evt)
     {
-        // We only care about the moment a grab starts and the moment it ends.
-        // Hover / move / cancel don't drive EMS.
         switch (evt.Type)
         {
             case PointerEventType.Select:
             {
                 string hand = ClosestHand(evt.Pose.position);
-                _activeGrabs[evt.Identifier] = hand;
-                int weight = weightSource != null
-                    ? Mathf.RoundToInt(weightSource.percent)
+                activeGrabs[evt.Identifier] = hand;
+
+                int weight = plateFillPercent != null
+                    ? Mathf.RoundToInt(plateFillPercent.percent)
                     : 0;
-                var payload = $"Lift,{weight},{hand}";
+
+                string payload = $"Lift,{weight},{hand}";
                 Esp32Bridge.Send(payload);
+
                 Debug.Log($"[GrabDetector:{name}] {payload}");
                 break;
             }
@@ -83,13 +84,20 @@ public class GrabDetector : MonoBehaviour
             case PointerEventType.Unselect:
             case PointerEventType.Cancel:
             {
-                if (_activeGrabs.TryGetValue(evt.Identifier, out string hand))
+                if (activeGrabs.TryGetValue(evt.Identifier, out string hand))
                 {
-                    _activeGrabs.Remove(evt.Identifier);
-                    var payload = $"Release,0,{hand}";
+                    activeGrabs.Remove(evt.Identifier);
+
+                    int weight = plateFillPercent != null
+                    ? Mathf.RoundToInt(plateFillPercent.percent)
+                    : 0;
+
+                    string payload = $"Release,{weight},{hand}";
                     Esp32Bridge.Send(payload);
+
                     Debug.Log($"[GrabDetector:{name}] {payload}");
                 }
+
                 break;
             }
         }
@@ -97,9 +105,12 @@ public class GrabDetector : MonoBehaviour
 
     private string ClosestHand(Vector3 point)
     {
-        if (_leftAnchor == null || _rightAnchor == null) return "Left";
-        float l = (point - _leftAnchor.position).sqrMagnitude;
-        float r = (point - _rightAnchor.position).sqrMagnitude;
-        return l <= r ? "Left" : "Right";
+        if (leftHandAnchor == null || rightHandAnchor == null)
+            return "Left";
+
+        float leftDistance = (point - leftHandAnchor.position).sqrMagnitude;
+        float rightDistance = (point - rightHandAnchor.position).sqrMagnitude;
+
+        return leftDistance <= rightDistance ? "Left" : "Right";
     }
 }

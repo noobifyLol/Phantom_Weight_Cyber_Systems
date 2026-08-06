@@ -18,8 +18,10 @@ public class CompleteVRLocomotion : MonoBehaviour
     [Header("Arm Swing Run Settings")]
     public float swingSensitivity = 2.5f;
     public float maxSpeed = 8.0f;
-    [Tooltip("Combined hand-speed (m/s) that has to be exceeded before running kicks in. Higher = less jitter.")]
+    [Tooltip("Combined hand-speed (m/s) that has to be exceeded before running kicks in — CONTROLLER mode. Higher = less jitter.")]
     public float minSwing = 0.6f;
+    [Tooltip("Combined hand-speed (m/s) required to trigger running when the user is on bare HAND TRACKING (no controllers, no grip). Set noticeably higher than 'minSwing' since with hand tracking every gesture, pointing, or natural body motion registers as a swing.")]
+    public float minSwingHands = 2.0f;
     [Tooltip("Low-pass smoothing on the raw hand-speed measurement. 0=raw, 1=frozen. Higher = smoother but laggier.")]
     [Range(0f, 0.99f)]
     public float swingInputSmoothing = 0.75f;
@@ -31,8 +33,9 @@ public class CompleteVRLocomotion : MonoBehaviour
     private float _currentRunSpeed;
     private float _runSpeedVelocity;
 
-    [Header("Jump & Gravity")]
-    public float jumpVelocity = 5.0f;
+    [Header("Gravity")]
+    // Jump was removed on purpose — the A-button "fly" bug came from stacked
+    // jump impulses when isGrounded briefly re-triggered off cube contacts.
     public float gravity = -9.81f;
 
     [Header("Turn Settings (Right Stick)")]
@@ -51,6 +54,15 @@ public class CompleteVRLocomotion : MonoBehaviour
     [Tooltip("Amplifies physical steps in your room safely through collisions. 1 = 1:1 real, 3 = each real step covers 3× the ground.")]
     public float physicalMoveGain = 3.0f;
 
+    [Header("Physical Height Gain (crouching/standing)")]
+    [Range(1f, 4f)]
+    [Tooltip("Max amplification for REAL vertical head movement, applied while standing/tall — same idea as Physical Move Gain but vertical. Fades to 1x (unamplified real crouch) as the headset nears the ground, see the two Y thresholds below.")]
+    public float heightGain = 2.0f;
+    [Tooltip("Headset world height (m) above which the FULL heightGain applies.")]
+    public float heightGainFullAboveY = 1.1f;
+    [Tooltip("Headset world height (m) at/below which heightGain fades to 1x so reaching for objects near the floor stays precise.")]
+    public float heightGainFadeToOneBelowY = 0.5f;
+
     [Header("Recenter")]
     [Tooltip("Button to snap the tracking space back to the standard eye height (fixes 'boot up too tall' bugs).")]
     public OVRInput.Button recenterButton = OVRInput.Button.Two;   // left-controller Y
@@ -66,7 +78,7 @@ public class CompleteVRLocomotion : MonoBehaviour
     private Vector3 _previousRightPos;
     private Vector3 _lastHeadLocal;
     private bool _hasLastHead;
-    private float _lastHeadLocalY; // raw headTransform.localPosition.y, used only by height gain (see HandleCrouch)
+    private float _lastHeadLocalY; // raw headTransform.localPosition.y, used only by height gain
 
     private float _currentVerticalSpeed;
     private bool _turnArmed = true;
@@ -100,14 +112,12 @@ public class CompleteVRLocomotion : MonoBehaviour
         HandleCrouch();
         HandleRecenter();
 
-        // Combines Arm Swing, Joystick input, and Physical Room Scale Gain
-        Vector3 totalHorizontalMove = CalculateArmSwingMovement() 
-                                    + CalculateJoystickMovement() 
+        Vector3 totalHorizontalMove = CalculateArmSwingMovement()
+                                    + CalculateJoystickMovement()
                                     + CalculatePhysicalGainMovement();
 
-        HandleGravityAndJump(ref totalHorizontalMove);
+        HandleGravity(ref totalHorizontalMove);
 
-        // Single atomic call ensures all movement respects scene physics/colliders
         _characterController.Move(totalHorizontalMove * Time.deltaTime);
     }
 
@@ -121,7 +131,7 @@ public class CompleteVRLocomotion : MonoBehaviour
         Vector3 newCenter = Vector3.zero;
         newCenter.x = headTransform.localPosition.x;
         newCenter.z = headTransform.localPosition.z;
-        newCenter.y = headHeight / 2f; 
+        newCenter.y = headHeight / 2f;
 
         _characterController.center = newCenter;
     }
@@ -130,15 +140,11 @@ public class CompleteVRLocomotion : MonoBehaviour
     {
         if (!useJoystickMove) return Vector3.zero;
 
-        // Reads Left Thumbstick input (X = Strafe, Y = Forward/Back)
         Vector2 primaryAxis = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick);
-
         if (primaryAxis.magnitude < 0.1f) return Vector3.zero;
 
-        // Align movement relative to where the headset is pointing
         Vector3 forward = headTransform.forward;
         Vector3 right = headTransform.right;
-
         forward.y = 0f;
         right.y = 0f;
         forward.Normalize();
@@ -150,12 +156,7 @@ public class CompleteVRLocomotion : MonoBehaviour
 
     private Vector3 CalculateArmSwingMovement()
     {
-        // Motion is filtered twice:
-        //   1. the raw per-frame hand speed goes through an exponential low-pass
-        //      so a single dropped tracking frame doesn't spike the reading, and
-        //   2. the output speed is SmoothDamp'd toward its target so the character
-        //      accelerates smoothly instead of teleporting between speeds each
-        //      frame. Both stages are what makes running "not choppy".
+        // Motion is filtered twice — see minSwing / swingInputSmoothing tooltips.
         float dt = Mathf.Max(Time.deltaTime, 1e-4f);
 
         float rawTotal = 0f;
@@ -170,23 +171,25 @@ public class CompleteVRLocomotion : MonoBehaviour
             rawTotal = (leftHandDelta.magnitude + rightHandDelta.magnitude) / dt;
         }
 
-        // Frame-rate-independent EMA. `swingInputSmoothing` is expressed as
-        // "fraction to retain per 1/60 s" so the feel is the same on 72/90/120 Hz.
+        // Frame-rate-independent EMA. `swingInputSmoothing` = "fraction to retain per 1/60 s".
         float retain = Mathf.Pow(swingInputSmoothing, dt * 60f);
         _filteredSwingSpeed = Mathf.Lerp(rawTotal, _filteredSwingSpeed, retain);
 
-        // Require BOTH grips to trigger the run. Single-grip is reserved for grabbing
-        // (Meta's ControllerGrabInteractor uses grip); if we listened to either grip,
-        // reaching for a cube with one hand would silently start you running and shove
-        // the cube out of range before the grab could land.
-        bool isSwingingActive = OVRInput.Get(OVRInput.Button.PrimaryHandTrigger) &&
-                                OVRInput.Get(OVRInput.Button.SecondaryHandTrigger);
+        // Controllers: require BOTH grips so single-hand grip stays for grab.
+        // Hands: no grip button exists at all, so gate on a much higher swing speed
+        //        (minSwingHands) — otherwise ordinary gestures/pointing register as running.
+        bool usingHands = (OVRInput.GetActiveController() & OVRInput.Controller.Hands) != 0;
+
+        bool isSwingingActive = usingHands ||
+                                (OVRInput.Get(OVRInput.Button.PrimaryHandTrigger) &&
+                                 OVRInput.Get(OVRInput.Button.SecondaryHandTrigger));
+
+        float threshold = usingHands ? minSwingHands : minSwing;
 
         float targetSpeed = 0f;
-        if (isSwingingActive && _filteredSwingSpeed > minSwing)
+        if (isSwingingActive && _filteredSwingSpeed > threshold)
         {
-            // Subtract the deadband so we ramp up from zero, not from minSwing.
-            targetSpeed = Mathf.Min((_filteredSwingSpeed - minSwing) * swingSensitivity, maxSpeed);
+            targetSpeed = Mathf.Min((_filteredSwingSpeed - threshold) * swingSensitivity, maxSpeed);
         }
 
         _currentRunSpeed = Mathf.SmoothDamp(
@@ -213,7 +216,7 @@ public class CompleteVRLocomotion : MonoBehaviour
         if (_hasLastHead)
         {
             Vector3 delta = headLocal - _lastHeadLocal;
-            delta.y = 0f; // Handled separately by headset height sync
+            delta.y = 0f;
 
             Vector3 worldDelta = _trackingSpace.TransformVector(delta);
             gainVelocity = (worldDelta * (physicalMoveGain - 1.0f)) / Time.deltaTime;
@@ -225,19 +228,15 @@ public class CompleteVRLocomotion : MonoBehaviour
         return gainVelocity;
     }
 
-    private void HandleGravityAndJump(ref Vector3 currentMove)
+    // Gravity-only. Jump intentionally removed — the A-button "fly" behaviour
+    // came from stacked jump impulses when isGrounded briefly re-triggered
+    // during cube contacts. If jump is needed later, gate it on a real ground
+    // check (SphereCast down onto a Floor layer) rather than CC.isGrounded.
+    private void HandleGravity(ref Vector3 currentMove)
     {
-        if (_characterController.isGrounded)
+        if (_characterController.isGrounded && _currentVerticalSpeed < 0f)
         {
-            if (_currentVerticalSpeed < 0)
-            {
-                _currentVerticalSpeed = -2.0f;
-            }
-
-            if (OVRInput.GetDown(OVRInput.Button.One)) // "A" Button
-            {
-                _currentVerticalSpeed = jumpVelocity;
-            }
+            _currentVerticalSpeed = -2.0f;
         }
         else
         {
@@ -273,20 +272,19 @@ public class CompleteVRLocomotion : MonoBehaviour
     }
 
     // Snaps the tracking space so the current headset position reports the
-    // configured eye-height. Fixes the "boot up too tall / too high" bug when
-    // the guardian origin isn't where the user actually is at start.
+    // configured eye-height. Fixes the "boot up too tall / too high" bug.
     private void HandleRecenter()
     {
         if (_trackingSpace == null || headTransform == null) return;
         if (!OVRInput.GetDown(recenterButton)) return;
 
-        // Head world -> tracking-space local
         Vector3 headTs = _trackingSpace.InverseTransformPoint(headTransform.position);
         Vector3 ts = _trackingSpace.localPosition;
-        ts.y += (recenterEyeHeight - headTs.y);   // lift/lower so head reports recenterEyeHeight
+        ts.y += (recenterEyeHeight - headTs.y);
         _trackingSpace.localPosition = ts;
-        _trackingSpaceBaseLocalY = _trackingSpace.localPosition.y; // reset crouch base
-        _hasLastHead = false;                                     // avoid a huge gain kick
+        _trackingSpaceBaseLocalY = _trackingSpace.localPosition.y;
+        _hasLastHead = false;
+        _lastHeadLocalY = headTransform.localPosition.y;
         Debug.Log($"[Locomotion] Recentered — head localY now ~{recenterEyeHeight:0.00} m.");
     }
 
@@ -301,18 +299,23 @@ public class CompleteVRLocomotion : MonoBehaviour
             _lastHeadLocalY = headTransform.localPosition.y;
         }
 
-        // Physical height gain: fold amplified REAL vertical head movement into the
-        // moving base height, on top of the plain 1:1 tracking you already get for
-        // free. Reads headTransform.localPosition.y — the same raw, un-amplified
-        // signal SyncColliderToHeadset() uses — rather than anything derived from
-        // _trackingSpace's own position, because _trackingSpace.localPosition.y is
-        // what this method is about to move; measuring "real" delta from a value we
-        // just changed would feed the amplified motion back into itself every frame.
+        // Physical height gain: standing up amplifies your in-game height upward,
+        // crouching amplifies downward. Was inverted with -= (which cancelled the
+        // real motion instead of amplifying it, so standing up made you appear
+        // shorter and vice-versa). Correct sign is +=: real head Y delta gets
+        // added on top of what you already get for free from the tracking system.
+        //
+        // Fade back to 1x near the floor (heightGainFadeToOneBelowY) so reaching
+        // for objects on the ground stays precise.
         float headLocalY = headTransform.localPosition.y;
-        if (heightGain > 1.0f)
+        float headWorldY = headTransform.position.y;
+        float fadeT = Mathf.InverseLerp(heightGainFadeToOneBelowY, heightGainFullAboveY, headWorldY);
+        float effectiveHeightGain = Mathf.Lerp(1f, heightGain, fadeT);
+
+        if (effectiveHeightGain > 1.0f)
         {
             float verticalDelta = headLocalY - _lastHeadLocalY;
-            _trackingSpaceBaseLocalY -= verticalDelta * (heightGain - 1.0f);
+            _trackingSpaceBaseLocalY += verticalDelta * (effectiveHeightGain - 1.0f);
         }
         _lastHeadLocalY = headLocalY;
 

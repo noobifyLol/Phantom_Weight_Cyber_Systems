@@ -19,6 +19,14 @@ Errors that we have solved in the past: the controller not appearing and control
 
 **Height gain / crouch not responsive enough (8/5):** physically crouching in real life barely changed in-game height. `CompleteVRLocomotion` already had "Physical Move Gain" to amplify real *horizontal* steps, but nothing amplified real *vertical* head movement — it was 1:1. Added a matching `heightGain` field: it reads the raw, un-amplified headset height (the same signal the collider-sync code already used) and folds the amplified vertical delta into the tracking-space base height each frame, stacking on top of (not replacing) the existing stick-crouch.
 
+**Follow-up pass (8/6) — height gain inverted, A-button flew, hand-tracking too twitchy, player kept climbing cubes.**
+- *Standing up made the view drop.* `HandleCrouch`'s new height-gain block folded the amplified delta in with `_trackingSpaceBaseLocalY -= verticalDelta * (gain-1)`. That cancels the real motion instead of amplifying it — real head Y goes up, tracking-space Y goes down by the same amount, so the head world Y stays put and it *feels* like you shrank. Correct sign is `+=`; now standing up moves the view further up and crouching further down, both scaled by `heightGain`, still fading to 1× near the floor so reaching for ground objects stays precise.
+- *A-button "fly".* `HandleGravityAndJump` set `_currentVerticalSpeed = jumpVelocity` any frame `CharacterController.isGrounded` was true — and `isGrounded` briefly re-fires off cube contacts, so holding A stacked jump impulses. Per request, removed jump entirely and renamed the method `HandleGravity`. If jump comes back later it needs a real ground check (a downward SphereCast onto a Floor layer), not `CC.isGrounded`.
+- *Bare hand-tracking triggered running from any gesture.* When `OVRInput.GetActiveController()` reports `Hands` there's no grip button to gate on, so the run gate was swing-speed only, and normal hand motion crossed `minSwing = 0.6`. Added a separate `minSwingHands` threshold (default `2.0` m/s) used only in that mode — controllers still gate on both grips + `minSwing`.
+- *Player climbing on top of cubes.* Old behaviour let small cubes be step-up-able (`stepOffset = 0.2`), which turned out to be a bug source, not a feature. Dropped default to `0.05` in `playerPushScript` — cubes now act as walls; raise the field back up if you ever want them climbable again.
+- *`DumbbellWeight.cs` deleted.* Nothing in the current gameplay loop was using it. If the `Dumbbell` GameObject still shows a `Missing (Mono Script)` row in the Inspector after this update, remove it via the three-dot menu on that row.
+- *Do not put a `MeshCollider` on the Dumbbell.* MeshColliders on Rigidbodies must have `Convex = true`; a non-convex one silently makes Unity skip collision on it, so the dumbbell falls through the floor and grabs stop landing. Keep the `BoxCollider`.
+
 ### Full error log (reconstructed from Git + Plastic version control history) ###
 - **Git and Plastic tracking each other's internals** — the project already had a live Plastic workspace when Git was set up, so each was staging the other's state files (Plastic was staging 712 items including the 47 MB `.git/lfs` store). Fixed with `ignore.conf` (Plastic) and `.gitignore` (Git) rules so each VCS ignores the other. (7/22)
 - **Furniture_ges1 room asset pack blown out to solid white** — authored for Built-in RP in Gamma space, relied on a Post Processing profile that URP + Linear ignores entirely. Ambient Intensity, Albedo Boost, and Indirect Output Scale were stuck at inflated values (8 / 3.41 / 1.86); reset to Unity defaults (1/1/1), plus a background material (`fonas1.mat`) that had the backdrop photo wired in as a full-white emission map. (7/22)
@@ -37,6 +45,18 @@ Errors that we have solved in the past: the controller not appearing and control
 - **`PlateFillPercent.cs` weight-plate percentage capped at 50% instead of 100%** — multiplied by `50f` instead of `100f`. Fixed. (8/4)
 - **Block grabbing / height gain** — see the two entries above. (8/5)
 
+<<<<<<< Updated upstream
+=======
+## Things that we have to do right now ##
+- Make the calibration screen
+- Add gravity for the environment and fix the pass through
+- Make the map solid and the blocks solid
+- Connect ESP32 wirelessly *(a Bluetooth rewrite of the firmware already exists at `Assets/Scripts/main.cpp.txt` — uses `BluetoothSerial` instead of wired USB — but hasn't been moved into `Firmware/ESP32/` as the canonical version yet)*
+- Hand-tracked pinch grabs: cubes have `HandGrabInstallationRoutine` for pose grabs but the dumbbell doesn't — add one or verify pinch grabs on it are landing before ship
+
+## Personal Weight Formula ##
+<img width="461" height="824" alt="image" src="https://github.com/user-attachments/assets/ab58254c-f175-49d1-befd-b85038623c12" />
+>>>>>>> Stashed changes
 
 ## Hardware coding framework ##
 1. Player picks up item -> prints out the weight assigned to the item -> converts weight to # of button presses through a formula in a script.
@@ -55,14 +75,13 @@ Errors that we have solved in the past: the controller not appearing and control
 
 ## Software -> Hardware bridge ##
 1. `Assets/Scripts/GrabDetector.cs` sits on each grabbable object (`RequireComponent(Grabbable)`). It's event-driven — subscribed to `Grabbable.WhenPointerEventRaised` — rather than polling every frame, so a grab-and-release inside a single frame can't be missed and four objects aren't all polling `Update()` needlessly. It figures out which hand grabbed by proximity of the grab-point pose to `OVRCameraRig.leftHandAnchor`/`rightHandAnchor`.
-2. On `Select`, it sends `"Lift,{weight},{hand}"` (weight read live from `PlateFillPercent.percent`) via `Esp32Bridge.Send(...)`, e.g. `Lift,30,Left`. On `Unselect`/`Cancel`, it sends `"Release,0,{hand}"`.
+2. On `Select`, it sends `"Lift,{weight},{hand}"` (weight read live from `PlateFillPercent.percent` at the moment of the grab) via `Esp32Bridge.Send(...)`, e.g. `Lift,30,Left`. On `Unselect`/`Cancel`, it sends `"Release,{weight},{hand}"` using that **same** weight it grabbed with — not a fixed 0, since the ESP32's release pulse count needs to match what it pulsed up by.
 3. `Esp32Bridge.cs` is a static, process-wide owner of the serial port — previously every `GrabDetector` opened its own `SerialPort` on `COM4`, so four grabbable objects meant four competing "port busy" warnings. Now any script just calls `Esp32Bridge.Send(payload)` and doesn't care whether the port is open, missing, or unsupported on the current build target.
-4. `Firmware/ESP32/ESP32.ino` is the Arduino sketch running on the ESP32. It reads the `Command,Weight,Hand` line over Serial and drives `digitalWrite()` on GPIO 4 (Left) / GPIO 2 (Right), HIGH on `Lift`, LOW otherwise. (A newer Bluetooth-based rewrite exists at `Assets/Scripts/main.cpp.txt` — see the TODO list.)
+4. `Firmware/ESP32/ESP32.ino` is the Arduino sketch running on the ESP32 (wired USB). It reads the `Command,Weight,Hand` line over Serial. Left hand (GPIO 4) is a simple `digitalWrite` HIGH on `lift` / LOW on `release`. Right hand pulses: GPIO 2 HIGH/LOW `weight` times on `lift` (pulse UP), GPIO 5 HIGH/LOW `weight` times on `release` (pulse DOWN) — each pulse ~67ms. (A separate Bluetooth-based rewrite exists at `Assets/Scripts/main.cpp.txt` — see the TODO list.)
 5. The serial connection only opens in the Editor / Windows standalone builds (`#if UNITY_EDITOR || UNITY_STANDALONE_WIN`) since `System.IO.Ports.SerialPort` isn't available on Android/Quest — on-device builds just skip the ESP32 calls.
 
 ## Other gameplay scripts ##
-- `PlateFillPercent.cs` — reads the calibration slider's world X position and turns it into a 0-100 `percent` value that `GrabDetector` (weight sent to the ESP32) and `DumbbellWeight` both read. Also drives the slider's visual polish: a floating `"NN%"` label and a coloured fill bar along the track that grows and tints low→high so the slider reads as an actual gauge instead of a flat plate.
-- `DumbbellWeight.cs` — makes a grabbable object's *physical* weight track the slider: `Rigidbody.mass` scales with the slider percent (so it sags/swings slower when "heavier", lining up with the EMS signal), plus optional tint-darkening and an on-screen `"NN lb"` label.
+- `PlateFillPercent.cs` — reads the calibration slider's world X position and turns it into a 0-100 `percent` value that `GrabDetector` reads (weight sent to the ESP32). Also drives the slider's visual polish: a floating `"NN%"` label and a coloured fill bar along the track that grows and tints low→high so the slider reads as an actual gauge instead of a flat plate.
 - `playerPushScript.cs` — sits on the Player. Gently pushes cubes on the `Cubes` layer when the player's capsule bumps into them while walking (small impulse, damped so it doesn't ping-pong), and sets a moderate `CharacterController.stepOffset` so low cubes are climbable but taller props aren't.
 - `Billboard.cs` — makes a UI/label object always face the camera by matching its rotation every frame.
 - `PokeLogger.cs` — debug helper wired to the Meta SDK's poke/click event; logs the poke and disables a `DisclaimerCanvas` if one is present in the scene (calibration-screen scaffolding).
@@ -73,8 +92,8 @@ Errors that we have solved in the past: the controller not appearing and control
 - **Grab + haptics building blocks** — `[BuildingBlock] Cube` objects with Rigidbody + Grabbable, `[BuildingBlock] Haptics`, Hand Grab installation routines. Cinemachine added for camera work. (7/23)
 - **Visual realism pass for Quest 3** — ACES tonemapping, bloom, punchier color adjustments, screen-space ambient occlusion, higher-res/longer-distance/soft shadows. (7/27)
 - **`QuestPerformanceSetup.cs`** — 90Hz display refresh, SustainedHigh CPU/GPU, dynamic foveated rendering level 3. (7/27)
-- **`CompleteVRLocomotion.cs`** — the current, single locomotion script (superseded an earlier `SimpleXRLocomotion.cs`). Combines: joystick move; two-hand arm-swing running (double-exponential-smoothed so it isn't choppy, requires *both* grips so a one-handed grab reach doesn't accidentally trigger a run); jump + gravity; smooth or snap turn; stick-crouch; **Physical Move Gain** (amplifies real horizontal steps so a small real step covers more ground); **Physical Height Gain** (same idea, vertically, for real crouching — added 8/5); and a recenter button that snaps the tracking space back to a configured eye height.
-- **`GrabDetector.cs` / `Esp32Bridge.cs` / `DumbbellWeight.cs` / `playerPushScript.cs`** — see "Other gameplay scripts" and "Software -> Hardware bridge" above.
+- **`CompleteVRLocomotion.cs`** — the current, single locomotion script (superseded an earlier `SimpleXRLocomotion.cs`). Combines: joystick move; two-hand arm-swing running (double-exponential-smoothed so it isn't choppy; requires *both* grips on controllers so a one-handed grab reach doesn't accidentally trigger a run; on bare hand tracking, gates on a separate, higher swing threshold `minSwingHands` since there's no grip button); gravity; smooth or snap turn; stick-crouch; **Physical Move Gain** (amplifies real horizontal steps); **Physical Height Gain** (same idea, vertically — added 8/5, fixed sign 8/6); and a recenter button (default Y on the left controller) that snaps the tracking space back to a configured eye height. Jump was removed on 8/6 — the A-button "fly" bug came from stacked jump impulses off cube contacts.
+- **`GrabDetector.cs` / `Esp32Bridge.cs` / `playerPushScript.cs`** — see "Other gameplay scripts" and "Software -> Hardware bridge" above.
 - **Soft-body physics material** (`Assets/physicsMaterials/softMaterial.physicMaterial`) for grabbable blocks that should give a little rather than feel perfectly rigid. (8/4)
 - **Meta XR SDK realigned to a single consistent Package Manager version (205)**, with `com.meta.xr.sdk.audio` and `com.unity.ai.navigation` embedded locally to fix packages whose cached copies had import/compile problems. (8/4)
 - **`[BuildingBlock] OVRComprehensiveInteractionRig`** added back so hand models and controller models both appear/blend correctly. (8/4)

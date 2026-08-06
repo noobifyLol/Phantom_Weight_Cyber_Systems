@@ -25,8 +25,8 @@ public class playerPushScript : MonoBehaviour
     public LayerMask pushableLayers = ~0;
 
     [Header("CharacterController tuning")]
-    [Tooltip("How tall a step the player can walk up. 0.2 = low cubes are climbable, tall props are walls.")]
-    public float stepOffset = 0.2f;
+    [Tooltip("How tall a step the player can walk up. 0.05 = the player CAN'T climb onto cubes (they act as walls). Raise if you want small cubes to be walkable-on-top.")]
+    public float stepOffset = 0.05f;
 
     void Awake()
     {

@@ -1,69 +1,74 @@
 #include <Arduino.h>
 
 void setup() {
-    Serial.begin(115200); // Required to initialize serial communication
+    // Initialize the physical USB Serial hardware line
+    Serial.begin(115200);
     Serial.setTimeout(10);
-    pinMode(2, OUTPUT); // GPIO pin 1 for Channel 1
 
-    pinMode(4, OUTPUT);
+    pinMode(2, OUTPUT); // Right arm pulse UP
+    pinMode(5, OUTPUT); // Right arm pulse DOWN
+    pinMode(4, OUTPUT); // Left arm tracking
+
+    Serial.println("Wired ESP32 Connection Ready!");
 }
 
-// prereq, unity sends back a conversion ratio and a weight for the esp32
-// the schema would be command and then the weight for the serial terminal and then which hand it is, (later position
-// for the object would be needed for the best experience)
-
-// Serial.print
-
-/* THis the serial print schema we can code a table for all of this
-Serial.print("Lift"); // command Lift/Release
-Serial.print("30"); // weight put into a varaible and throught a equation
-Serial.println("Left"); // Which hand Left/Right
-Serial.println("Position "); // implment later
-
-*/
-
-// So this is the final schemua
-String example = "Lift,30,Left";
-// - -----------------------------------------------------------------
-
 void loop() {
-
+    // Listen directly to the physical USB cable data stream
     if (Serial.available()) {
 
         String input = Serial.readStringUntil('\n');
-        input.replace(" ","");
+        input.replace(" ", "");
 
-        //lift,30,left
+        // --- Parsing Schema: "Lift,30,Left" ---
         int commandIndex = input.indexOf(",");
+        if (commandIndex == -1) return;
+
         String command = input.substring(0, commandIndex);
+        command.toLowerCase();
 
-        input = input.substring(commandIndex + 1, input.length());
-        int weightIndex = input.indexOf(",");
+        String remainder = input.substring(commandIndex + 1);
+        int weightIndex = remainder.indexOf(",");
+        if (weightIndex == -1) return;
 
-        double weight = input.substring(0, weightIndex).toDouble();
+        // Extract weight and cast to integer for loop counts
+        int weight = remainder.substring(0, weightIndex).toInt();
 
-        input = input.substring(weightIndex + 1, input.length());
-
-        String hand = input;
+        String hand = remainder.substring(weightIndex + 1);
         hand.trim();
 
-        // Channel 1 one is triceps left hand
+        // --- Logic Execution ---
 
-        // Channel 2 is biceps left hand
-
-        if (hand == "Left" && (command == "Lift" || command == "lift")){
-            digitalWrite(4, HIGH);
-        }
-        else if (hand == "Left"){
-            digitalWrite(4, LOW);
-        }
-
-        else if (hand == "Right" && (command == "Lift" || command == "lift")){
-            digitalWrite(2, HIGH);
-        }
-        else if (hand == "Right"){
-            digitalWrite(2, LOW);
+        // Channel 1: Left hand tracking
+        if (hand == "Left") {
+            if (command == "lift") {
+                digitalWrite(4, HIGH);
+            } else if (command == "release") {
+                digitalWrite(4, LOW);
+            }
         }
 
+        // Channel 2: Right hand tracking
+        else if (hand == "Right") {
+            if (command == "lift") {
+                // Pulse Pin 2 UP based on weight value
+                for (int i = 0; i < weight; i++) {
+                    digitalWrite(2, HIGH);
+                    delay(67);
+                    digitalWrite(2, LOW);
+                    delay(67);
+                }
+            }
+            else if (command == "release") {
+                // Unity's GrabDetector.cs now sends back the weight this hand
+                // was actually lifted with (see _activeGrabs there), not a
+                // fixed 0, so this loop runs and pulses back down to match.
+                for (int i = weight; i > 0; i--) {
+                    digitalWrite(5, HIGH);
+                    delay(67);
+                    digitalWrite(5, LOW);
+                    delay(67);
+                }
+            }
+        }
     }
 }
