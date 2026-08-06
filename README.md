@@ -1,7 +1,19 @@
 This is the Phantom Weight project.
 
+
+## Things that we have to do right now ##
+
+- Fix the CompleteLocoMotion Script for the B button
+- Fix block acceleration and block flying collosion with the player
+- Connect ESP32 wirelessly *(a Bluetooth rewrite of the firmware already exists at `Assets/Scripts/main.cpp.txt` — uses `BluetoothSerial` instead of wired USB — but hasn't been moved into `Firmware/ESP32/` as the canonical version yet)*
+
+
+## Personal Weight Formula ##
+<img width="461" height="824" alt="image" src="https://github.com/user-attachments/assets/ab58254c-f175-49d1-befd-b85038623c12" />
+
+
 ## Error Log ##
-Errors that we have solved in the past: the controller not appearing and controller inputs not being detected by the Meta XR interaction kit; assets not loading into Unity (appearing purple or at max brightness); the hand-and-controller-connected-simultaneously model blend glitch (fixed by treating hand-tracked and controller states independently instead of trying to blend them); real-life physical movement only translating ~3cm of in-VR movement (fixed by measuring the real head-position delta and scaling it through a conversion equation); objects looking way too big when picked up compared to viewing them from a distance (fixed with grab transformer scripts that constrain scale); making blocks solid via gravity + kinematic-while-grabbed instead of making the *person* solid; the grey-screen issue (disabled tunneling/passthrough scripts); box colliders and camera clipping into the ground (fixed by adding real box colliders and a proper player controller instead of moving the bare camera).
+Errors that we have solved in the past: the controller not appearing and controller inputs not being detected by the Meta XR interaction kit; assets not loading into Unity (appearing purple or at max brightness); the hand-and-controller-connected-simultaneously model blend glitch (fixed by treating hand-tracked and controller states independently instead of trying to blend them); real-life physical movement only translating ~3cm of in-VR movement (fixed by measuring the real head-position delta and scaling it through a conversion equation); objects looking way too big when picked up compared to viewing them from a distance (fixed with grab transformer scripts that constrain scale); making blocks solid via gravity + kinematic-while-grabbed instead of making the *person* solid; the grey-screen issue (disabled tunneling/passthrough scripts); box colliders and camera clipping into the ground (fixed by adding real box colliders and a proper player controller instead of moving the bare camera). OpenXR or MetaQuest isn't running the unity environment when the computer clicked play. This was fixed by deleting corrupted cache files of com.unity.xr.openxr and then changing the openxr setting in unity to android to using openxr. 
 
 **Block grabbing (8/5):** only the slider could be picked up with the controller trigger, not the actual grabbable cubes. Cause: the two cubes' `Rigidbody.excludeLayers` was set to the `Player` layer, and the whole hand/controller rig lives on that same `Player` layer. Meta's grab system finds candidates through actual Unity trigger events (`OnTriggerEnter`), so excluding the Player layer silently meant the cubes could never trigger-overlap the hand and never got added to the grab candidate list — even though the Physics Layer Collision Matrix looked completely fine. Fixed by clearing `excludeLayers` back to nothing on both cubes. Also attached `playerPushScript` (already written, just never attached) to the Player so walking into a cube gently pushes it, scoped to the `Cubes` layer only.
 
@@ -25,19 +37,6 @@ Errors that we have solved in the past: the controller not appearing and control
 - **`PlateFillPercent.cs` weight-plate percentage capped at 50% instead of 100%** — multiplied by `50f` instead of `100f`. Fixed. (8/4)
 - **Block grabbing / height gain** — see the two entries above. (8/5)
 
-## Things that we have to do right now ##
-- Make the calibration screen
-- Add gravity for the environment and fix the pass through
-- Make the map solid and the blocks solid
-- Fix the jump button and button inputs and make a run function
-- Fix box colliders when picking up
-- Fix running motion
-- Make cube pickups stop teleporting with physics
-- Make the slider not flat
-- Connect ESP32 wirelessly *(a Bluetooth rewrite of the firmware already exists at `Assets/Scripts/main.cpp.txt` — uses `BluetoothSerial` instead of wired USB — but hasn't been moved into `Firmware/ESP32/` as the canonical version yet)*
-
-## Personal Weight Formula ##
-<img width="461" height="824" alt="image" src="https://github.com/user-attachments/assets/ab58254c-f175-49d1-befd-b85038623c12" />
 
 ## Hardware coding framework ##
 1. Player picks up item -> prints out the weight assigned to the item -> converts weight to # of button presses through a formula in a script.
