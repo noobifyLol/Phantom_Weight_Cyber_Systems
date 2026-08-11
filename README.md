@@ -7,7 +7,8 @@ This is the Phantom Weight project.
 - Make a Body so when someone looks down they see a body
 - Make the items move slower in hand
 - Make other objects grabbable
-- 
+- Make the box coliders smaller
+- Fix the skateboard issue
 
 ## Personal Weight Formula ##
 <img width="461" height="824" alt="image" src="https://github.com/user-attachments/assets/ab58254c-f175-49d1-befd-b85038623c12" />
