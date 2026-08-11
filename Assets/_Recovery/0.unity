@@ -7726,6 +7726,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8d7a3eb60d52144782bd6ec48d7cce5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CubeGrabDetector
+  plateFillPercent: {fileID: 0}
+  defaultPort: COM4
+  rig: {fileID: 0}
 --- !u!1 &470671650
 GameObject:
   m_ObjectHideFlags: 0

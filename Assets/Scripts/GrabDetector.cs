@@ -1,25 +1,32 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.IO.Ports; // Added to resolve SerialPort namespace
+using System.IO.Ports; 
 using Oculus.Interaction;
 
 [RequireComponent(typeof(Grabbable))]
+[RequireComponent(typeof(Collider))] // Ensures the script has access to the block's collider
 public class GrabDetector : MonoBehaviour
 {
     [Header("Optional overrides")]
     [Tooltip("Leave blank to auto-find.")]
     public PlateFillPercent plateFillPercent;
+    
     [Header("Block Settings")]
     public string defaultPort = "COM4";
 
     [Header("Rig Reference")]
     public OVRCameraRig rig;
 
+    [Header("Weight Base on Slider")]
+    [Range(1f,2f)]
+    public float multiper = 1.0f;
+
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN
     private SerialPort esp;
 #endif
 
     private Grabbable grabbable;
+    private Collider blockCollider; // Used to toggle the trigger state
 
     private Transform leftHandAnchor;
     private Transform rightHandAnchor;
@@ -30,6 +37,7 @@ public class GrabDetector : MonoBehaviour
     void Awake()
     {
         grabbable = GetComponent<Grabbable>();
+        blockCollider = GetComponent<Collider>(); // Get the collider attached to the block
 
         // 1. Only auto-find if not assigned via Inspector
         if (plateFillPercent == null)
@@ -67,13 +75,21 @@ public class GrabDetector : MonoBehaviour
         {
             case PointerEventType.Select:
             {
+                // Make the block unsolid (pass-through) when grabbed
+                if (blockCollider != null) blockCollider.isTrigger = true;
+
                 string hand = ClosestHand(evt.Pose.position);
                 activeGrabs[evt.Identifier] = hand;
 
                 int weight = plateFillPercent != null
-                    ? Mathf.RoundToInt(plateFillPercent.percent)
+                    ? Mathf.RoundToInt(plateFillPercent.percent * multiper)
                     : 0;
-
+                if (weight >= 100 ) {
+                    weight = 100;
+                }
+                else if (weight <= 0){
+                    weight = 0;
+                }
                 string payload = $"Lift,{weight},{hand}";
                 Esp32Bridge.Send(payload);
 
@@ -84,6 +100,9 @@ public class GrabDetector : MonoBehaviour
             case PointerEventType.Unselect:
             case PointerEventType.Cancel:
             {
+                // Make the block solid (collidable) again when released
+                if (blockCollider != null) blockCollider.isTrigger = false;
+
                 if (activeGrabs.TryGetValue(evt.Identifier, out string hand))
                 {
                     activeGrabs.Remove(evt.Identifier);

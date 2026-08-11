@@ -7674,7 +7674,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8d7a3eb60d52144782bd6ec48d7cce5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CubeGrabDetector
-  blockWeight: 10
+  plateFillPercent: {fileID: 0}
+  defaultPort: COM4
+  rig: {fileID: 0}
 --- !u!114 &467920236
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8746,7 +8748,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8d7a3eb60d52144782bd6ec48d7cce5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CubeGrabDetector
-  blockWeight: 20
+  plateFillPercent: {fileID: 0}
+  defaultPort: COM4
+  rig: {fileID: 0}
 --- !u!114 &518574493
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19424,8 +19428,15 @@ MonoBehaviour:
   swingSensitivity: 3
   maxSpeed: 8
   minSwing: 0.15
-  jumpVelocity: 5
+  minSwingHands: 2
+  swingInputSmoothing: 0.75
+  swingRampTime: 0.18
   gravity: -9.81
+  jumpHeight: 1.5
+  jumpButton: 1
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
   useSmoothTurn: 1
   smoothTurnSpeed: 120
   snapTurnAngle: 1
@@ -19434,6 +19445,11 @@ MonoBehaviour:
   crouchTransitionTime: 0.15
   crouchThreshold: 0.6
   physicalMoveGain: 3.5
+  heightGain: 2
+  heightGainFullAboveY: 1.1
+  heightGainFadeToOneBelowY: 0.5
+  recenterButton: 2
+  recenterEyeHeight: 1.7
 --- !u!143 &1078647577
 CharacterController:
   m_ObjectHideFlags: 0

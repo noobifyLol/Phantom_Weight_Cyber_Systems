@@ -13,30 +13,27 @@ public class CompleteVRLocomotion : MonoBehaviour
 
     [Header("Joystick Movement Settings")]
     public bool useJoystickMove = true;
-    public float joystickMoveSpeed = 3.5f;
+    public float joystickMoveSpeed = 3.0f;
 
     [Header("Arm Swing Run Settings")]
     public float swingSensitivity = 2.5f;
     public float maxSpeed = 8.0f;
-    [Tooltip("Combined hand-speed (m/s) that has to be exceeded before running kicks in — CONTROLLER mode. Higher = less jitter.")]
     public float minSwing = 0.6f;
-    [Tooltip("Combined hand-speed (m/s) required to trigger running when the user is on bare HAND TRACKING (no controllers, no grip). Set noticeably higher than 'minSwing' since with hand tracking every gesture, pointing, or natural body motion registers as a swing.")]
     public float minSwingHands = 2.0f;
-    [Tooltip("Low-pass smoothing on the raw hand-speed measurement. 0=raw, 1=frozen. Higher = smoother but laggier.")]
     [Range(0f, 0.99f)]
     public float swingInputSmoothing = 0.75f;
-    [Tooltip("Time (s) to ramp movement speed toward the target. Higher = softer starts/stops.")]
     public float swingRampTime = 0.18f;
 
-    // Filtered / smoothed run state (used by CalculateArmSwingMovement).
     private float _filteredSwingSpeed;
     private float _currentRunSpeed;
     private float _runSpeedVelocity;
 
-    [Header("Gravity")]
-    // Jump was removed on purpose — the A-button "fly" bug came from stacked
-    // jump impulses when isGrounded briefly re-triggered off cube contacts.
-    public float gravity = -9.81f;
+    [Header("Gravity & Jump")]
+    public float gravity = -18.0f;
+    public float jumpHeight = 1.5f;
+    public OVRInput.Button jumpButton = OVRInput.Button.One;
+    [Tooltip("Select ONLY ground/environment layers here (e.g. Default, Environment). DO NOT include Grabbables!")]
+    public LayerMask groundLayer; 
 
     [Header("Turn Settings (Right Stick)")]
     public bool useSmoothTurn = true;
@@ -46,30 +43,28 @@ public class CompleteVRLocomotion : MonoBehaviour
 
     [Header("Crouch Settings (Right Stick Down)")]
     public float crouchDepth = 0.5f;
-    public float crouchTransitionTime = 0.15f;
+    public float crouchTransitionTime = 0.25f;
     public float crouchThreshold = 0.6f;
 
     [Header("Physical Walking Gain")]
     [Range(1f, 6f)]
-    [Tooltip("Amplifies physical steps in your room safely through collisions. 1 = 1:1 real, 3 = each real step covers 3× the ground.")]
     public float physicalMoveGain = 3.0f;
 
-    [Header("Physical Height Gain (crouching/standing)")]
+    [Header("Physical Height Gain")]
     [Range(1f, 4f)]
-    [Tooltip("Max amplification for REAL vertical head movement, applied while standing/tall — same idea as Physical Move Gain but vertical. Fades to 1x (unamplified real crouch) as the headset nears the ground, see the two Y thresholds below.")]
     public float heightGain = 2.0f;
-    [Tooltip("Headset world height (m) above which the FULL heightGain applies.")]
     public float heightGainFullAboveY = 1.1f;
-    [Tooltip("Headset world height (m) at/below which heightGain fades to 1x so reaching for objects near the floor stays precise.")]
     public float heightGainFadeToOneBelowY = 0.5f;
 
-    [Header("Recenter")]
-    [Tooltip("Button to snap the tracking space back to the standard eye height (fixes 'boot up too tall' bugs).")]
-    public OVRInput.Button recenterButton = OVRInput.Button.Two;   // left-controller Y
-    [Tooltip("Eye height (m) used when recentering. Standing avg ~1.7 m.")]
+    [Header("Recenter - Up ")]
+    public OVRInput.Button recenterButton = OVRInput.Button.Two;
     public float recenterEyeHeight = 1.7f;
 
-    // Internal State Variables
+    [Header("Recenter - Down")]
+    public OVRInput.Button recenterButton2 = OVRInput.Button.Three;
+    public float recenterEyeHeightB = 0.2f;
+
+    // Internal State
     private CharacterController _characterController;
     private OVRCameraRig _rig;
     private Transform _trackingSpace;
@@ -78,7 +73,7 @@ public class CompleteVRLocomotion : MonoBehaviour
     private Vector3 _previousRightPos;
     private Vector3 _lastHeadLocal;
     private bool _hasLastHead;
-    private float _lastHeadLocalY; // raw headTransform.localPosition.y, used only by height gain
+    private float _lastHeadLocalY;
 
     private float _currentVerticalSpeed;
     private bool _turnArmed = true;
@@ -87,6 +82,7 @@ public class CompleteVRLocomotion : MonoBehaviour
     private bool _hasTrackingSpaceBaseY;
     private float _crouchOffsetCurrent;
     private float _crouchVelocity;
+    private bool _isGroundedCustom;
 
     void Start()
     {
@@ -101,6 +97,11 @@ public class CompleteVRLocomotion : MonoBehaviour
 
         if (leftHandTransform != null) _previousLeftPos = leftHandTransform.localPosition;
         if (rightHandTransform != null) _previousRightPos = rightHandTransform.localPosition;
+
+        if (groundLayer.value == 0)
+        {
+            groundLayer = LayerMask.GetMask("Default");
+        }
     }
 
     void Update()
@@ -108,9 +109,12 @@ public class CompleteVRLocomotion : MonoBehaviour
         if (headTransform == null) return;
 
         SyncColliderToHeadset();
+        CheckGroundStatus();
         HandleTurn();
         HandleCrouch();
+        HandleJump();
         HandleRecenter();
+        HandleRecenter2();
 
         Vector3 totalHorizontalMove = CalculateArmSwingMovement()
                                     + CalculateJoystickMovement()
@@ -136,27 +140,85 @@ public class CompleteVRLocomotion : MonoBehaviour
         _characterController.center = newCenter;
     }
 
+ private void CheckGroundStatus()
+{
+    // 1. If actively moving upwards from a jump, forcefully unground
+    if (_currentVerticalSpeed > 0.1f)
+    {
+        _isGroundedCustom = false;
+        return;
+    }
+
+    // 2. CRITICAL FIX: Exclude the player's own layer from the ground check
+    // This prevents the sphere from colliding with your own CharacterController mid-air
+    int safeGroundMask = groundLayer.value & ~(1 << gameObject.layer);
+
+    // 3. Position the check sphere at the bottom center of the CharacterController
+    Vector3 bottomCenter = transform.position + _characterController.center;
+    bottomCenter.y -= (_characterController.height / 2f) - _characterController.radius;
+
+    // 4. Perform sphere check
+    bool sphereGrounded = Physics.CheckSphere(
+        bottomCenter, 
+        _characterController.radius * 0.9f, 
+        safeGroundMask, // Using the fixed mask
+        QueryTriggerInteraction.Ignore
+    );
+
+    _isGroundedCustom = _characterController.isGrounded || sphereGrounded;
+}
+private void HandleJump()
+{
+    // Check if the jump button is pressed this frame (A button / Primary Button)
+    bool jumpPressed = OVRInput.GetDown(OVRInput.Button.One) || OVRInput.GetDown(OVRInput.RawButton.A);
+
+    if (jumpPressed && _isGroundedCustom)
+    {
+        // Calculate vertical jump velocity using physics equation: v = sqrt(2 * g * h)
+        // jumpHeight should be a float variable (e.g., public float jumpHeight = 1.5f;)
+        _currentVerticalSpeed = Mathf.Sqrt(2f * Mathf.Abs(gravity) * jumpHeight);
+        _isGroundedCustom = false;
+    }
+}
+private void HandleGravity(ref Vector3 currentMove)
+{
+    if (_isGroundedCustom && _currentVerticalSpeed <= 0f)
+    {
+        // Stick to the ground when actually landed
+        _currentVerticalSpeed = -2.0f;
+    }
+    else
+    {
+        // Apply full gravity when falling
+        _currentVerticalSpeed += gravity * Time.deltaTime;
+    }
+
+    currentMove.y = _currentVerticalSpeed;
+}
+
     private Vector3 CalculateJoystickMovement()
     {
         if (!useJoystickMove) return Vector3.zero;
 
         Vector2 primaryAxis = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick);
-        if (primaryAxis.magnitude < 0.1f) return Vector3.zero;
+        if (primaryAxis.sqrMagnitude < 0.01f) return Vector3.zero;
 
+        // Determine forward/right relative to headset orientation
         Vector3 forward = headTransform.forward;
         Vector3 right = headTransform.right;
+
         forward.y = 0f;
         right.y = 0f;
+
         forward.Normalize();
         right.Normalize();
 
-        Vector3 moveDir = (forward * primaryAxis.y) + (right * primaryAxis.x);
-        return moveDir * joystickMoveSpeed;
+        Vector3 moveDirection = (forward * primaryAxis.y) + (right * primaryAxis.x);
+        return moveDirection * joystickMoveSpeed;
     }
 
     private Vector3 CalculateArmSwingMovement()
     {
-        // Motion is filtered twice — see minSwing / swingInputSmoothing tooltips.
         float dt = Mathf.Max(Time.deltaTime, 1e-4f);
 
         float rawTotal = 0f;
@@ -171,13 +233,9 @@ public class CompleteVRLocomotion : MonoBehaviour
             rawTotal = (leftHandDelta.magnitude + rightHandDelta.magnitude) / dt;
         }
 
-        // Frame-rate-independent EMA. `swingInputSmoothing` = "fraction to retain per 1/60 s".
         float retain = Mathf.Pow(swingInputSmoothing, dt * 60f);
         _filteredSwingSpeed = Mathf.Lerp(rawTotal, _filteredSwingSpeed, retain);
 
-        // Controllers: require BOTH grips so single-hand grip stays for grab.
-        // Hands: no grip button exists at all, so gate on a much higher swing speed
-        //        (minSwingHands) — otherwise ordinary gestures/pointing register as running.
         bool usingHands = (OVRInput.GetActiveController() & OVRInput.Controller.Hands) != 0;
 
         bool isSwingingActive = usingHands ||
@@ -228,24 +286,6 @@ public class CompleteVRLocomotion : MonoBehaviour
         return gainVelocity;
     }
 
-    // Gravity-only. Jump intentionally removed — the A-button "fly" behaviour
-    // came from stacked jump impulses when isGrounded briefly re-triggered
-    // during cube contacts. If jump is needed later, gate it on a real ground
-    // check (SphereCast down onto a Floor layer) rather than CC.isGrounded.
-    private void HandleGravity(ref Vector3 currentMove)
-    {
-        if (_characterController.isGrounded && _currentVerticalSpeed < 0f)
-        {
-            _currentVerticalSpeed = -2.0f;
-        }
-        else
-        {
-            _currentVerticalSpeed += gravity * Time.deltaTime;
-        }
-
-        currentMove.y = _currentVerticalSpeed;
-    }
-
     private void HandleTurn()
     {
         float x = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick).x;
@@ -271,23 +311,6 @@ public class CompleteVRLocomotion : MonoBehaviour
         transform.RotateAround(headTransform.position, Vector3.up, snapAngle);
     }
 
-    // Snaps the tracking space so the current headset position reports the
-    // configured eye-height. Fixes the "boot up too tall / too high" bug.
-    private void HandleRecenter()
-    {
-        if (_trackingSpace == null || headTransform == null) return;
-        if (!OVRInput.GetDown(recenterButton)) return;
-
-        Vector3 headTs = _trackingSpace.InverseTransformPoint(headTransform.position);
-        Vector3 ts = _trackingSpace.localPosition;
-        ts.y += (recenterEyeHeight - headTs.y);
-        _trackingSpace.localPosition = ts;
-        _trackingSpaceBaseLocalY = _trackingSpace.localPosition.y;
-        _hasLastHead = false;
-        _lastHeadLocalY = headTransform.localPosition.y;
-        Debug.Log($"[Locomotion] Recentered — head localY now ~{recenterEyeHeight:0.00} m.");
-    }
-
     private void HandleCrouch()
     {
         if (_trackingSpace == null || headTransform == null) return;
@@ -299,14 +322,6 @@ public class CompleteVRLocomotion : MonoBehaviour
             _lastHeadLocalY = headTransform.localPosition.y;
         }
 
-        // Physical height gain: standing up amplifies your in-game height upward,
-        // crouching amplifies downward. Was inverted with -= (which cancelled the
-        // real motion instead of amplifying it, so standing up made you appear
-        // shorter and vice-versa). Correct sign is +=: real head Y delta gets
-        // added on top of what you already get for free from the tracking system.
-        //
-        // Fade back to 1x near the floor (heightGainFadeToOneBelowY) so reaching
-        // for objects on the ground stays precise.
         float headLocalY = headTransform.localPosition.y;
         float headWorldY = headTransform.position.y;
         float fadeT = Mathf.InverseLerp(heightGainFadeToOneBelowY, heightGainFullAboveY, headWorldY);
@@ -329,5 +344,37 @@ public class CompleteVRLocomotion : MonoBehaviour
         Vector3 local = _trackingSpace.localPosition;
         local.y = _trackingSpaceBaseLocalY - _crouchOffsetCurrent;
         _trackingSpace.localPosition = local;
+    }
+
+    private void HandleRecenter()
+    {
+        if (_trackingSpace == null || headTransform == null) return;
+        if (!OVRInput.GetDown(recenterButton)) return;
+
+        Vector3 headTs = _trackingSpace.InverseTransformPoint(headTransform.position);
+        Vector3 ts = _trackingSpace.localPosition;
+        ts.y += (recenterEyeHeight - headTs.y);
+        _trackingSpace.localPosition = ts;
+        _trackingSpaceBaseLocalY = _trackingSpace.localPosition.y;
+        _hasLastHead = false;
+        _lastHeadLocalY = headTransform.localPosition.y;
+    }
+
+    private void HandleRecenter2()
+    {
+        if (_trackingSpace == null || headTransform == null) return;
+        if (!OVRInput.GetDown(recenterButton2)) return;
+        bool buttonPressed = OVRInput.GetDown(recenterButton2) || OVRInput.GetDown(OVRInput.RawButton.X);
+        if (!buttonPressed) return;
+        Vector3 currhead = _trackingSpace.InverseTransformPoint(headTransform.position);
+        Vector3 ts = _trackingSpace.localPosition;
+        float heightOffset = recenterEyeHeightB - currhead.y;
+        
+        ts.y += heightOffset; // Properly shift tracking space up or down
+        _trackingSpace.localPosition = ts; // Fixed CS1612 by assigning whole vector
+
+        _trackingSpaceBaseLocalY = _trackingSpace.localPosition.y;
+        _hasLastHead = false;
+        _lastHeadLocalY = headTransform.localPosition.y;
     }
 }
