@@ -5,8 +5,9 @@ This is the Phantom Weight project.
 
 - Connect ESP32 wirelessly *(a Bluetooth rewrite of the firmware already exists at `Assets/Scripts/main.cpp.txt` — uses `BluetoothSerial` instead of wired USB — but hasn't been moved into `Firmware/ESP32/` as the canonical version yet)*
 - Make a Body so when someone looks down they see a body
-- Make the items move slower in hand
-- Make other objects grabbable
+- Fix the CompleteLocoMotion
+- Fix the grabbing and the object transforming and dialating
+- 
 
 
 ## Personal Weight Formula ##
