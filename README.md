@@ -5,9 +5,8 @@ This is the Phantom Weight project.
 
 - Connect ESP32 wirelessly *(a Bluetooth rewrite of the firmware already exists at `Assets/Scripts/main.cpp.txt` — uses `BluetoothSerial` instead of wired USB — but hasn't been moved into `Firmware/ESP32/` as the canonical version yet)*
 - Make a Body so when someone looks down they see a body
-- Fix the CompleteLocoMotion
 - Fix the grabbing and the object transforming and dialating
-- 
+- Add how make things grabbable and make the esp32 react to the documentation.
 
 
 ## Personal Weight Formula ##
@@ -46,12 +45,15 @@ Errors that we have solved in the past: the controller not appearing and control
 - **`NullReferenceException` in Meta's `FirstPersonLocomotor`, spamming every frame** — a leftover Building-Block component (`SlideLocomotionBroadcaster`) was broadcasting locomotion events into a `FirstPersonLocomotor` we don't use (real locomotion is `CompleteVRLocomotion`) and that was never initialized. Fixed at the source by disabling the broadcaster so no events are generated in the first place. (8/4)
 - **`PlateFillPercent.cs` weight-plate percentage capped at 50% instead of 100%** — multiplied by `50f` instead of `100f`. Fixed. (8/4)
 - **Block grabbing / height gain** — see the two entries above. (8/5)
-
+- **CompleteLocoMotion Height recentering and Completed** The height adjustment bug occurred because HandleCrouch() continuously overwrote the camera's Y position every frame, snapping your view back down shortly after pressing Button B or X. To fix it, manual height changes were converted into a permanent offset variable (_manualHeightOffset) rather than a temporary single-frame shift. Now, HandleCrouch() applies this persistent offset directly during every frame calculation, keeping your view height stable. (8/12)
+  
 
 ## Hardware coding framework ##
 1. Player picks up item -> prints out the weight assigned to the item -> converts weight to # of button presses through a formula in a script.
 2. Send # of button presses to the ESP32 over serial -> EMS writes that many times.
 3. When the player releases the item -> check if still grabbing -> if not, loop back down to 0 (needs a global `currentWeight` variable so rapid drop/re-grab doesn't lose state).
+
+
 
 ## Starting out in Unity ##
 1. **The first part of the software side of this project is the Unity environment.** Download the official Unity installer from their website. Build your own room or import one from the Unity Asset Store, then install the Meta All-In-One SDK so you get the Meta Building Blocks.
