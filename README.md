@@ -65,6 +65,14 @@ Errors that we have solved in the past: the controller not appearing and control
 7. On each grabbable block, add the `GrabDetector` script alongside the `Grabbable` component so it can detect grabs and talk to the ESP32.
 8. For blocks that should feel soft/give a little when grabbed, assign the `softMaterial` Physic Material (`Assets/physicsMaterials/softMaterial.physicMaterial`) to the block's Collider.
 
+## Making an object grabbable in Unity ##
+1. Using Meta BuildingBlock, add `[BuildingBlock] HandGrabInstallationRoutine` into the object that you want to be grabbable.
+2. To the object itself, add components: `Grab Interactable (Script)`, `Box Collider`, `Grabbable (Script)`, `RigidBody`, `Grab Detector (Script)`, `Grab Free Transformer (Script)`, `Interactable Trigger Broadcaster (Script)`
+3. In the `[BuildingBlock] HandGrabInstallationRoutine`, add components: `Hand Grab Interactable (Script)`, `Grab Interactable (Script)`, `Move Towards Target Provider (Script)`
+4. In the inspector of the object itself, drag `Grab Free Transformer (Script)` into the optionals section of the `Grabbable (Script)`. One Grab Transformer and Two Grab Transformer.
+5. Inside of the `[BuildingBlock] HandGrabInstallationRoutine`, drag the `Grabbable (Script)` from the object itself to the pointable element in the `Hand Grab Interactable (Script)`. Drag the `RigidBody` from the object itself to the RigidBody section in the `Hand Grab Interactable (Script)` as well.
+6. Still in the `[BuildingBlock] HandGrabInstallationRoutine`, drag the `Grabbable (Script)` from the object itself to the pointable element in the `Grab Interactable (Script)`. Drag the `RigidBody` from the object itself to the RigidBody section in the `Grab Interactable (Script)` as well.
+
 ## Software -> Hardware bridge ##
 1. `Assets/Scripts/GrabDetector.cs` sits on each grabbable object (`RequireComponent(Grabbable)`). It's event-driven — subscribed to `Grabbable.WhenPointerEventRaised` — rather than polling every frame, so a grab-and-release inside a single frame can't be missed and four objects aren't all polling `Update()` needlessly. It figures out which hand grabbed by proximity of the grab-point pose to `OVRCameraRig.leftHandAnchor`/`rightHandAnchor`.
 2. On `Select`, it sends `"Lift,{weight},{hand}"` (weight read live from `PlateFillPercent.percent` at the moment of the grab) via `Esp32Bridge.Send(...)`, e.g. `Lift,30,Left`. On `Unselect`/`Cancel`, it sends `"Release,{weight},{hand}"` using that **same** weight it grabbed with — not a fixed 0, since the ESP32's release pulse count needs to match what it pulsed up by.
