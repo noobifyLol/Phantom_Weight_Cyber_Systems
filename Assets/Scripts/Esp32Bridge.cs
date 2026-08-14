@@ -1,12 +1,5 @@
 // Shared, process-wide gateway to the ESP32 over serial.
 //
-// Previously every GrabDetector opened its own SerialPort on Start(). With
-// four cubes in the scene that was four `esp.Open()` attempts on COM4 and
-// four "port busy / access denied" warnings. This class owns the port for
-// the whole app: any script that wants to talk to the ESP32 calls
-// `Esp32Bridge.Send("Lift,30,Left")` and doesn't care whether the port is
-// open, missing, or on a build target that doesn't support serial.
-//
 // Guarded by `UNITY_EDITOR || UNITY_STANDALONE_WIN` because
 // System.IO.Ports.SerialPort isn't available on Android (Quest) builds.
 
@@ -23,6 +16,12 @@ public static class Esp32Bridge
 
     private static bool s_initialised;
     private static bool s_available;
+
+    // --- NEW: Centralized State Tracking ---
+    private static bool s_leftGrabbing = false;
+    private static bool s_rightGrabbing = false;
+    private static float s_leftWeight = 0f;
+    private static float s_rightWeight = 0f;
 
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN
     private static SerialPort s_port;
@@ -71,6 +70,55 @@ public static class Esp32Bridge
 #endif
     }
 
+    // --- NEW: Grab State Manager ---
+    // Call this from your GrabDetector instead of calling Send() directly.
+    public static void SetGrabState(bool isLeftHand, bool isGrabbing, float weight = 0f)
+    {
+        // 1. Update the internal state for the specific hand
+        if (isLeftHand)
+        {
+            s_leftGrabbing = isGrabbing;
+            s_leftWeight = weight;
+        }
+        else
+        {
+            s_rightGrabbing = isGrabbing;
+            s_rightWeight = weight;
+        }
+
+        // 2. Evaluate the combined state and send the correct payload
+        EvaluateAndSendState();
+    }
+
+    private static void EvaluateAndSendState()
+    {
+        // SAFETY OVERRIDE: Both hands are grabbing! 
+        // Force a total reset to zero.
+        if (s_leftGrabbing && s_rightGrabbing)
+        {
+            int maxWeight = Mathf.RoundToInt(Mathf.Max(s_leftWeight, s_rightWeight));
+            Send($"Lift,{maxWeight},both");
+        }
+        // ONLY Left hand is grabbing
+        else if (s_leftGrabbing)
+        {
+            Send($"Lift,{s_leftWeight},left");
+            Send("Release,0,right"); // Make sure right is completely off
+        }
+        // ONLY Right hand is grabbing
+        else if (s_rightGrabbing)
+        {
+            Send($"Lift,{s_rightWeight},right");
+            Send("Release,0,left"); // Make sure left is completely off
+        }
+        // NEITHER hand is grabbing
+        else
+        {
+            Send("Release,0,both");
+        }
+    }
+    // ------------------------------------
+
 #if UNITY_EDITOR
     [UnityEditor.InitializeOnEnterPlayMode]
     private static void ResetOnPlay()
@@ -78,6 +126,10 @@ public static class Esp32Bridge
         // Domain-reload-off safe: force a fresh open at each Play start.
         Close();
         s_initialised = false;
+        
+        // Reset our grab states when hitting Play
+        s_leftGrabbing = false;
+        s_rightGrabbing = false;
     }
 #endif
 
@@ -86,7 +138,12 @@ public static class Esp32Bridge
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN
         if (s_port != null)
         {
-            try { if (s_port.IsOpen) s_port.Close(); } catch { /* ignore */ }
+            // Send a final kill switch to the ESP32 on application quit
+            if (s_port.IsOpen)
+            {
+                try { s_port.WriteLine("Release,0,both"); } catch { }
+                try { s_port.Close(); } catch { /* ignore */ }
+            }
             s_port = null;
         }
 #endif

@@ -6,45 +6,28 @@ public class FeetFollower : MonoBehaviour
     public Transform centerEyeAnchor;
     public float eyeHeightOffset = 1.6f;
 
+    [Header("Locomotion Source")]
+    [Tooltip("Drag your PlayerController (or CharacterController) here to read movement speed directly.")]
+    public CharacterController characterController;
+
     [Header("Animation Settings")]
     public Animator avatarAnimator;
-    public float speedThreshold = 0.15f; // Minimum ground speed to trigger walking
-
-    private Vector3 lastPosition;
-
-    void Start()
-    {
-        lastPosition = transform.position;
-    }
+    public float speedThreshold = 0.15f; // Minimum locomotion speed to trigger walking animation
 
     void LateUpdate()
+{
+    if (centerEyeAnchor == null) return;
+
+    // Maintain floor Y coordinate while pinning X/Z directly under the VR headset
+    float groundY = characterController != null ? characterController.transform.position.y : transform.position.y;
+    transform.position = new Vector3(centerEyeAnchor.position.x, groundY, centerEyeAnchor.position.z);
+
+    // Rotate body with head yaw
+    Vector3 forward = centerEyeAnchor.forward;
+    forward.y = 0f;
+    if (forward.sqrMagnitude > 0.001f)
     {
-        if (centerEyeAnchor == null) return;
-
-        // 1. Move feet anchor directly beneath VR headset
-        Vector3 targetPosition = new Vector3(
-            centerEyeAnchor.position.x,
-            centerEyeAnchor.position.y - eyeHeightOffset,
-            centerEyeAnchor.position.z
-        );
-        transform.position = targetPosition;
-
-        // 2. Rotate body to face forward (horizontal rotation only)
-        Vector3 forward = centerEyeAnchor.forward;
-        forward.y = 0;
-        if (forward.sqrMagnitude > 0.001f)
-        {
-            transform.rotation = Quaternion.LookRotation(forward);
-        }
-
-        // 3. Calculate movement speed across the floor
-        float currentSpeed = (transform.position - lastPosition).magnitude / Time.deltaTime;
-        lastPosition = transform.position;
-
-        // 4. Drive 'IsWalking' parameter in Animator Controller
-        if (avatarAnimator != null)
-        {
-            avatarAnimator.SetBool("IsWalking", currentSpeed > speedThreshold);
-        }
+        transform.rotation = Quaternion.LookRotation(forward);
     }
+}
 }
