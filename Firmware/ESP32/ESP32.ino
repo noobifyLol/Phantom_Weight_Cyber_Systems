@@ -1,74 +1,85 @@
 #include <Arduino.h>
 
+// Wired (USB serial) firmware for the Phantom Weight EMS wearable.
+//
+// Unity's Esp32Bridge.cs sends one line per state change:
+//   "Lift,<weight 0-100>,<left|right|both>"
+//   "Release,0,<left|right|both>"
+// Hand and command are matched case-insensitively.
+
+const int PIN_RIGHT_UP   = 2;  // Right arm: pulse UP
+const int PIN_RIGHT_DOWN = 5;  // Right arm: pulse DOWN
+const int PIN_LEFT       = 4;  // Left arm: on/off
+const int PULSE_MS       = 67;
+
+// How many "up" pulses the right-arm unit is currently at. Unity sends
+// Release with a weight of 0, so the firmware has to remember how far it
+// pulsed up in order to pulse back down by the same amount.
+int rightLevel = 0;
+
+void pulse(int pin, int count) {
+    for (int i = 0; i < count; i++) {
+        digitalWrite(pin, HIGH);
+        delay(PULSE_MS);
+        digitalWrite(pin, LOW);
+        delay(PULSE_MS);
+    }
+}
+
+// Move the right arm from its current level to `target` pulses.
+void setRightLevel(int target) {
+    target = constrain(target, 0, 100);
+    if (target > rightLevel) {
+        pulse(PIN_RIGHT_UP, target - rightLevel);
+    } else if (target < rightLevel) {
+        pulse(PIN_RIGHT_DOWN, rightLevel - target);
+    }
+    rightLevel = target;
+}
+
 void setup() {
-    // Initialize the physical USB Serial hardware line
     Serial.begin(115200);
     Serial.setTimeout(10);
 
-    pinMode(2, OUTPUT); // Right arm pulse UP
-    pinMode(5, OUTPUT); // Right arm pulse DOWN
-    pinMode(4, OUTPUT); // Left arm tracking
+    pinMode(PIN_RIGHT_UP, OUTPUT);
+    pinMode(PIN_RIGHT_DOWN, OUTPUT);
+    pinMode(PIN_LEFT, OUTPUT);
 
     Serial.println("Wired ESP32 Connection Ready!");
 }
 
 void loop() {
-    // Listen directly to the physical USB cable data stream
-    if (Serial.available()) {
+    if (!Serial.available()) return;
 
-        String input = Serial.readStringUntil('\n');
-        input.replace(" ", "");
+    String input = Serial.readStringUntil('\n');
+    input.replace(" ", "");
+    input.trim();
 
-        // --- Parsing Schema: "Lift,30,Left" ---
-        int commandIndex = input.indexOf(",");
-        if (commandIndex == -1) return;
+    // --- Parsing schema: "Command,Weight,Hand" ---
+    int commandIndex = input.indexOf(',');
+    if (commandIndex == -1) return;
 
-        String command = input.substring(0, commandIndex);
-        command.toLowerCase();
+    String command = input.substring(0, commandIndex);
+    command.toLowerCase();
 
-        String remainder = input.substring(commandIndex + 1);
-        int weightIndex = remainder.indexOf(",");
-        if (weightIndex == -1) return;
+    String remainder = input.substring(commandIndex + 1);
+    int weightIndex = remainder.indexOf(',');
+    if (weightIndex == -1) return;
 
-        // Extract weight and cast to integer for loop counts
-        int weight = remainder.substring(0, weightIndex).toInt();
+    int weight = remainder.substring(0, weightIndex).toInt();
 
-        String hand = remainder.substring(weightIndex + 1);
-        hand.trim();
+    String hand = remainder.substring(weightIndex + 1);
+    hand.trim();
+    hand.toLowerCase();
 
-        // --- Logic Execution ---
+    bool left  = (hand == "left"  || hand == "both");
+    bool right = (hand == "right" || hand == "both");
 
-        // Channel 1: Left hand tracking
-        if (hand == "Left") {
-            if (command == "lift") {
-                digitalWrite(4, HIGH);
-            } else if (command == "release") {
-                digitalWrite(4, LOW);
-            }
-        }
-
-        // Channel 2: Right hand tracking
-        else if (hand == "Right") {
-            if (command == "lift") {
-                // Pulse Pin 2 UP based on weight value
-                for (int i = 0; i < weight; i++) {
-                    digitalWrite(2, HIGH);
-                    delay(67);
-                    digitalWrite(2, LOW);
-                    delay(67);
-                }
-            }
-            else if (command == "release") {
-                // Unity's GrabDetector.cs now sends back the weight this hand
-                // was actually lifted with (see _activeGrabs there), not a
-                // fixed 0, so this loop runs and pulses back down to match.
-                for (int i = weight; i > 0; i--) {
-                    digitalWrite(5, HIGH);
-                    delay(67);
-                    digitalWrite(5, LOW);
-                    delay(67);
-                }
-            }
-        }
+    if (command == "lift") {
+        if (left)  digitalWrite(PIN_LEFT, HIGH);
+        if (right) setRightLevel(weight);
+    } else if (command == "release") {
+        if (left)  digitalWrite(PIN_LEFT, LOW);
+        if (right) setRightLevel(0);
     }
 }

@@ -11,13 +11,14 @@ using System.IO.Ports;
 
 public static class Esp32Bridge
 {
-    public static string PortName = "COM4";
+    // UPDATE THIS TO MATCH YOUR ESP32 COM PORT (Device Manager → Ports)!
+    public static string PortName = "COM9";
     public static int BaudRate = 115200;
 
     private static bool s_initialised;
     private static bool s_available;
 
-    // --- NEW: Centralized State Tracking ---
+    // Centralized state tracking for both hands
     private static bool s_leftGrabbing = false;
     private static bool s_rightGrabbing = false;
     private static float s_leftWeight = 0f;
@@ -61,75 +62,69 @@ public static class Esp32Bridge
         try
         {
             s_port.WriteLine(payload);
+            Debug.Log($"[Esp32Bridge] Sent to ESP32: {payload}");
         }
         catch (System.Exception e)
         {
-            Debug.LogWarning($"[Esp32Bridge] send failed, disabling: {e.Message}");
+            Debug.LogWarning($"[Esp32Bridge] Send failed, disabling port: {e.Message}");
             s_available = false;
         }
 #endif
     }
 
-    // --- NEW: Grab State Manager ---
-    // Call this from your GrabDetector instead of calling Send() directly.
+    // Grab state manager — call this from GrabDetector instead of Send().
     public static void SetGrabState(bool isLeftHand, bool isGrabbing, float weight = 0f)
     {
-        // 1. Update the internal state for the specific hand
         if (isLeftHand)
         {
             s_leftGrabbing = isGrabbing;
-            s_leftWeight = weight;
+            s_leftWeight = isGrabbing ? weight : 0f;
         }
         else
         {
             s_rightGrabbing = isGrabbing;
-            s_rightWeight = weight;
+            s_rightWeight = isGrabbing ? weight : 0f;
         }
 
-        // 2. Evaluate the combined state and send the correct payload
         EvaluateAndSendState();
     }
 
+    // Sends the combined state of both hands. Weights are rounded so the
+    // firmware always receives whole pulse counts.
     private static void EvaluateAndSendState()
     {
-        // SAFETY OVERRIDE: Both hands are grabbing! 
-        // Force a total reset to zero.
         if (s_leftGrabbing && s_rightGrabbing)
         {
             int maxWeight = Mathf.RoundToInt(Mathf.Max(s_leftWeight, s_rightWeight));
             Send($"Lift,{maxWeight},both");
         }
-        // ONLY Left hand is grabbing
         else if (s_leftGrabbing)
         {
-            Send($"Lift,{s_leftWeight},left");
-            Send("Release,0,right"); // Make sure right is completely off
+            Send($"Lift,{Mathf.RoundToInt(s_leftWeight)},left");
+            Send("Release,0,right"); // Explicitly drop right
         }
-        // ONLY Right hand is grabbing
         else if (s_rightGrabbing)
         {
-            Send($"Lift,{s_rightWeight},right");
-            Send("Release,0,left"); // Make sure left is completely off
+            Send($"Lift,{Mathf.RoundToInt(s_rightWeight)},right");
+            Send("Release,0,left"); // Explicitly drop left
         }
-        // NEITHER hand is grabbing
         else
         {
             Send("Release,0,both");
         }
     }
-    // ------------------------------------
 
 #if UNITY_EDITOR
     [UnityEditor.InitializeOnEnterPlayMode]
     private static void ResetOnPlay()
     {
-        // Domain-reload-off safe: force a fresh open at each Play start.
+        // Domain-reload-off safe: force a fresh open and clean state at each Play start.
         Close();
         s_initialised = false;
-        
-        // Reset our grab states when hitting Play
         s_leftGrabbing = false;
         s_rightGrabbing = false;
+        s_leftWeight = 0f;
+        s_rightWeight = 0f;
     }
 #endif
 
@@ -138,7 +133,7 @@ public static class Esp32Bridge
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN
         if (s_port != null)
         {
-            // Send a final kill switch to the ESP32 on application quit
+            // Final kill switch so the EMS unit never stays on after quitting
             if (s_port.IsOpen)
             {
                 try { s_port.WriteLine("Release,0,both"); } catch { }
@@ -157,7 +152,7 @@ public static class Esp32Bridge
         s_initialised = false;
     }
 
-    // Application quit hook via a hidden GameObject.
+    // Application quit hook
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void InstallQuitHook()
     {
