@@ -7675,8 +7675,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CubeGrabDetector
   plateFillPercent: {fileID: 0}
-  defaultPort: COM4
   rig: {fileID: 0}
+  multiper: 1
 --- !u!114 &467920236
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8749,8 +8749,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CubeGrabDetector
   plateFillPercent: {fileID: 0}
-  defaultPort: COM4
   rig: {fileID: 0}
+  multiper: 1
 --- !u!114 &518574493
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19448,8 +19448,10 @@ MonoBehaviour:
   heightGain: 2
   heightGainFullAboveY: 1.1
   heightGainFadeToOneBelowY: 0.5
+  heightStepUp: 0.5
+  heightStepDown: 0.5
   recenterButton: 2
-  recenterEyeHeight: 1.7
+  recenterButton2: 4
 --- !u!143 &1078647577
 CharacterController:
   m_ObjectHideFlags: 0

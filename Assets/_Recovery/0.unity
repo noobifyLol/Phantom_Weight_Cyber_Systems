@@ -7727,8 +7727,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CubeGrabDetector
   plateFillPercent: {fileID: 0}
-  defaultPort: COM4
   rig: {fileID: 0}
+  multiper: 1
 --- !u!1 &470671650
 GameObject:
   m_ObjectHideFlags: 0

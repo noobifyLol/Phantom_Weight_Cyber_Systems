@@ -1,52 +1,45 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.IO.Ports; 
 using Oculus.Interaction;
 
 [RequireComponent(typeof(Grabbable))]
-[RequireComponent(typeof(Collider))] // Ensures the script has access to the block's collider
+[RequireComponent(typeof(Collider))]
 public class GrabDetector : MonoBehaviour
 {
     [Header("Optional overrides")]
     [Tooltip("Leave blank to auto-find.")]
     public PlateFillPercent plateFillPercent;
-    
-    [Header("Block Settings")]
-    public string defaultPort = "COM4";
 
     [Header("Rig Reference")]
     public OVRCameraRig rig;
 
-    [Header("Weight Base on Slider")]
-    [Range(1f,2f)]
+    [Header("Weight Based on Slider")]
+    [Range(0f, 2f)]
     public float multiper = 1.0f;
 
-#if UNITY_EDITOR || UNITY_STANDALONE_WIN
-    private SerialPort esp;
-#endif
-
     private Grabbable grabbable;
-    private Collider blockCollider; // Used to toggle the trigger state
+    private Collider blockCollider;
 
     private Transform leftHandAnchor;
     private Transform rightHandAnchor;
 
-    // Tracks which hand is holding each pointer ID.
+    // Tracks which hand is holding each pointer ID
     private readonly Dictionary<int, string> activeGrabs = new Dictionary<int, string>();
+
+    private bool leftHeld = false;
+    private bool rightHeld = false;
 
     void Awake()
     {
         grabbable = GetComponent<Grabbable>();
-        blockCollider = GetComponent<Collider>(); // Get the collider attached to the block
+        blockCollider = GetComponent<Collider>();
 
-        // 1. Only auto-find if not assigned via Inspector
         if (plateFillPercent == null)
             plateFillPercent = GetComponent<PlateFillPercent>();
 
         if (plateFillPercent == null)
             plateFillPercent = FindAnyObjectByType<PlateFillPercent>();
 
-        // 2. Resolve Rig early in Awake instead of Start
         if (rig == null)
             rig = FindAnyObjectByType<OVRCameraRig>();
 
@@ -75,46 +68,46 @@ public class GrabDetector : MonoBehaviour
         {
             case PointerEventType.Select:
             {
-                // Make the block unsolid (pass-through) when grabbed
                 if (blockCollider != null) blockCollider.isTrigger = true;
 
                 string hand = ClosestHand(evt.Pose.position);
+                bool isLeft = (hand == "left");
+                
                 activeGrabs[evt.Identifier] = hand;
 
-                int weight = plateFillPercent != null
+                if (isLeft) leftHeld = true;
+                else rightHeld = true;
+
+                int rawWeight = plateFillPercent != null
                     ? Mathf.RoundToInt(plateFillPercent.percent * multiper)
                     : 0;
-                if (weight >= 100 ) {
-                    weight = 100;
-                }
-                else if (weight <= 0){
-                    weight = 0;
-                }
-                string payload = $"Lift,{weight},{hand}";
-                Esp32Bridge.Send(payload);
+                
+                int weight = Mathf.Clamp(rawWeight, 0, 100);
 
-                Debug.Log($"[GrabDetector:{name}] {payload}");
+                // --- ROUTE THROUGH STATE MANAGER ---
+                Esp32Bridge.SetGrabState(isLeft, true, weight);
+
+                Debug.Log($"[GrabDetector:{name}] Select -> Hand: {hand}, Weight: {weight}");
                 break;
             }
 
             case PointerEventType.Unselect:
             case PointerEventType.Cancel:
             {
-                // Make the block solid (collidable) again when released
                 if (blockCollider != null) blockCollider.isTrigger = false;
 
                 if (activeGrabs.TryGetValue(evt.Identifier, out string hand))
                 {
                     activeGrabs.Remove(evt.Identifier);
+                    bool isLeft = (hand == "left");
 
-                    int weight = plateFillPercent != null
-                    ? Mathf.RoundToInt(plateFillPercent.percent)
-                    : 0;
+                    if (isLeft) leftHeld = false;
+                    else rightHeld = false;
 
-                    string payload = $"Release,{weight},{hand}";
-                    Esp32Bridge.Send(payload);
+                    // --- ROUTE THROUGH STATE MANAGER ---
+                    Esp32Bridge.SetGrabState(isLeft, false, 0);
 
-                    Debug.Log($"[GrabDetector:{name}] {payload}");
+                    Debug.Log($"[GrabDetector:{name}] Unselect -> Hand: {hand}");
                 }
 
                 break;
@@ -125,11 +118,16 @@ public class GrabDetector : MonoBehaviour
     private string ClosestHand(Vector3 point)
     {
         if (leftHandAnchor == null || rightHandAnchor == null)
-            return "Left";
+            return "left";
 
         float leftDistance = (point - leftHandAnchor.position).sqrMagnitude;
         float rightDistance = (point - rightHandAnchor.position).sqrMagnitude;
 
-        return leftDistance <= rightDistance ? "Left" : "Right";
+        return leftDistance <= rightDistance ? "left" : "right";
     }
+
+    // Public getters for debugging
+    public bool IsLeftHeld() => leftHeld;
+    public bool IsRightHeld() => rightHeld;
+    public bool AreBothHeld() => leftHeld && rightHeld;
 }

@@ -3,6 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class CompleteVRLocomotion : MonoBehaviour
 {
+
     [Header("References")]
     [Tooltip("Assign CenterEyeAnchor here.")]
     public Transform headTransform;
@@ -56,13 +57,11 @@ public class CompleteVRLocomotion : MonoBehaviour
     public float heightGainFullAboveY = 1.1f;
     public float heightGainFadeToOneBelowY = 0.5f;
 
-    [Header("Recenter - Up ")]
-    public OVRInput.Button recenterButton = OVRInput.Button.Two;
-    public float recenterEyeHeight = 1.7f;
-
-    [Header("Recenter - Down")]
-    public OVRInput.Button recenterButton2 = OVRInput.Button.Three;
-    public float recenterEyeHeightB = 0.2f;
+    [Header("Height Adjustment Offsets")]
+    public float heightStepUp = 0.5f;   // Amount to raise view on Button B press
+    public float heightStepDown = 0.5f; // Amount to lower view on Button X press
+    public OVRInput.Button recenterButton = OVRInput.Button.Two;   // B Button on Right Controller
+    public OVRInput.Button recenterButton2 = OVRInput.Button.Three; // X Button on Left Controller
 
     // Internal State
     private CharacterController _characterController;
@@ -84,6 +83,8 @@ public class CompleteVRLocomotion : MonoBehaviour
     private float _crouchVelocity;
     private bool _isGroundedCustom;
 
+    private float _forcedCapsuleHeight = 0f;
+    private float _manualHeightOffset = 0f;
     void Start()
     {
         _characterController = GetComponent<CharacterController>();
@@ -127,8 +128,19 @@ public class CompleteVRLocomotion : MonoBehaviour
 
     private void SyncColliderToHeadset()
     {
-        float actualY = headTransform.localPosition.y;
-        float headHeight = (actualY < 0.2f) ? 1.75f : Mathf.Clamp(actualY, 1.0f, 2.2f);
+        float headHeight;
+
+        if (_forcedCapsuleHeight > 0f)
+        {
+            headHeight = _forcedCapsuleHeight;
+        }
+        else
+        {
+            float actualY = headTransform.localPosition.y;
+            headHeight = (actualY < 0.2f) ? 1.75f : Mathf.Clamp(actualY, 1.0f, 2.2f);
+        }
+
+        headHeight = Mathf.Max(0.2f, headHeight);
 
         _characterController.height = headHeight;
 
@@ -140,61 +152,53 @@ public class CompleteVRLocomotion : MonoBehaviour
         _characterController.center = newCenter;
     }
 
- private void CheckGroundStatus()
-{
-    // 1. If actively moving upwards from a jump, forcefully unground
-    if (_currentVerticalSpeed > 0.1f)
+    private void CheckGroundStatus()
     {
-        _isGroundedCustom = false;
-        return;
+        if (_currentVerticalSpeed > 0.1f)
+        {
+            _isGroundedCustom = false;
+            return;
+        }
+
+        int safeGroundMask = groundLayer.value & ~(1 << gameObject.layer);
+
+        Vector3 bottomCenter = transform.position + _characterController.center;
+        bottomCenter.y -= (_characterController.height / 2f) - _characterController.radius;
+
+        bool sphereGrounded = Physics.CheckSphere(
+            bottomCenter, 
+            _characterController.radius * 0.9f, 
+            safeGroundMask, 
+            QueryTriggerInteraction.Ignore
+        );
+
+        _isGroundedCustom = _characterController.isGrounded || sphereGrounded;
     }
 
-    // 2. CRITICAL FIX: Exclude the player's own layer from the ground check
-    // This prevents the sphere from colliding with your own CharacterController mid-air
-    int safeGroundMask = groundLayer.value & ~(1 << gameObject.layer);
-
-    // 3. Position the check sphere at the bottom center of the CharacterController
-    Vector3 bottomCenter = transform.position + _characterController.center;
-    bottomCenter.y -= (_characterController.height / 2f) - _characterController.radius;
-
-    // 4. Perform sphere check
-    bool sphereGrounded = Physics.CheckSphere(
-        bottomCenter, 
-        _characterController.radius * 0.9f, 
-        safeGroundMask, // Using the fixed mask
-        QueryTriggerInteraction.Ignore
-    );
-
-    _isGroundedCustom = _characterController.isGrounded || sphereGrounded;
-}
-private void HandleJump()
-{
-    // Check if the jump button is pressed this frame (A button / Primary Button)
-    bool jumpPressed = OVRInput.GetDown(OVRInput.Button.One) || OVRInput.GetDown(OVRInput.RawButton.A);
-
-    if (jumpPressed && _isGroundedCustom)
+    private void HandleJump()
     {
-        // Calculate vertical jump velocity using physics equation: v = sqrt(2 * g * h)
-        // jumpHeight should be a float variable (e.g., public float jumpHeight = 1.5f;)
-        _currentVerticalSpeed = Mathf.Sqrt(2f * Mathf.Abs(gravity) * jumpHeight);
-        _isGroundedCustom = false;
-    }
-}
-private void HandleGravity(ref Vector3 currentMove)
-{
-    if (_isGroundedCustom && _currentVerticalSpeed <= 0f)
-    {
-        // Stick to the ground when actually landed
-        _currentVerticalSpeed = -2.0f;
-    }
-    else
-    {
-        // Apply full gravity when falling
-        _currentVerticalSpeed += gravity * Time.deltaTime;
+        bool jumpPressed = OVRInput.GetDown(OVRInput.RawButton.A);
+
+        if (jumpPressed && _isGroundedCustom)
+        {
+            _currentVerticalSpeed = Mathf.Sqrt(2f * Mathf.Abs(gravity) * jumpHeight);
+            _isGroundedCustom = false;
+        }
     }
 
-    currentMove.y = _currentVerticalSpeed;
-}
+    private void HandleGravity(ref Vector3 currentMove)
+    {
+        if (_isGroundedCustom && _currentVerticalSpeed <= 0f)
+        {
+            _currentVerticalSpeed = -2.0f;
+        }
+        else
+        {
+            _currentVerticalSpeed += gravity * Time.deltaTime;
+        }
+
+        currentMove.y = _currentVerticalSpeed;
+    }
 
     private Vector3 CalculateJoystickMovement()
     {
@@ -203,7 +207,6 @@ private void HandleGravity(ref Vector3 currentMove)
         Vector2 primaryAxis = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick);
         if (primaryAxis.sqrMagnitude < 0.01f) return Vector3.zero;
 
-        // Determine forward/right relative to headset orientation
         Vector3 forward = headTransform.forward;
         Vector3 right = headTransform.right;
 
@@ -311,70 +314,66 @@ private void HandleGravity(ref Vector3 currentMove)
         transform.RotateAround(headTransform.position, Vector3.up, snapAngle);
     }
 
-    private void HandleCrouch()
-    {
-        if (_trackingSpace == null || headTransform == null) return;
+   private void HandleCrouch()
+{
+    if (_trackingSpace == null || headTransform == null) return;
 
-        if (!_hasTrackingSpaceBaseY)
-        {
-            _trackingSpaceBaseLocalY = _trackingSpace.localPosition.y;
-            _hasTrackingSpaceBaseY = true;
-            _lastHeadLocalY = headTransform.localPosition.y;
-        }
+    // Get raw headset height in local tracking space
+    float rawHeadY = headTransform.localPosition.y; 
 
-        float headLocalY = headTransform.localPosition.y;
-        float headWorldY = headTransform.position.y;
-        float fadeT = Mathf.InverseLerp(heightGainFadeToOneBelowY, heightGainFullAboveY, headWorldY);
-        float effectiveHeightGain = Mathf.Lerp(1f, heightGain, fadeT);
+    // Calculate height gain fade based on headset height in world space
+    float headWorldY = transform.position.y + rawHeadY;
+    float fadeT = Mathf.InverseLerp(heightGainFadeToOneBelowY, heightGainFullAboveY, headWorldY);
+    float effectiveHeightGain = Mathf.Lerp(1f, heightGain, fadeT);
 
-        if (effectiveHeightGain > 1.0f)
-        {
-            float verticalDelta = headLocalY - _lastHeadLocalY;
-            _trackingSpaceBaseLocalY += verticalDelta * (effectiveHeightGain - 1.0f);
-        }
-        _lastHeadLocalY = headLocalY;
+    // Absolute gain offset calculated directly from raw headset height (no frame-delta accumulation)
+    float gainOffset = (rawHeadY > 0f) ? rawHeadY * (effectiveHeightGain - 1.0f) : 0f;
 
-        float y = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick).y;
-        bool wantsCrouch = y < -crouchThreshold;
+    // Thumbstick crouch logic
+    float y = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick).y;
+    bool wantsCrouch = y < -crouchThreshold;
 
-        float target = wantsCrouch ? crouchDepth : 0f;
-        _crouchOffsetCurrent = Mathf.SmoothDamp(
-            _crouchOffsetCurrent, target, ref _crouchVelocity, crouchTransitionTime);
+    float target = wantsCrouch ? crouchDepth : 0f;
+    _crouchOffsetCurrent = Mathf.SmoothDamp(
+        _crouchOffsetCurrent, target, ref _crouchVelocity, crouchTransitionTime);
 
-        Vector3 local = _trackingSpace.localPosition;
-        local.y = _trackingSpaceBaseLocalY - _crouchOffsetCurrent;
-        _trackingSpace.localPosition = local;
-    }
+    // Apply absolute height gain + manual button offset - thumbstick crouch offset
+    Vector3 local = _trackingSpace.localPosition;
+    local.y = gainOffset + _manualHeightOffset - _crouchOffsetCurrent;
+    _trackingSpace.localPosition = local;
+}
 
     private void HandleRecenter()
     {
-        if (_trackingSpace == null || headTransform == null) return;
-        if (!OVRInput.GetDown(recenterButton)) return;
-
-        Vector3 headTs = _trackingSpace.InverseTransformPoint(headTransform.position);
-        Vector3 ts = _trackingSpace.localPosition;
-        ts.y += (recenterEyeHeight - headTs.y);
-        _trackingSpace.localPosition = ts;
-        _trackingSpaceBaseLocalY = _trackingSpace.localPosition.y;
-        _hasLastHead = false;
-        _lastHeadLocalY = headTransform.localPosition.y;
+        if (_trackingSpace == null) return;
+        if (OVRInput.GetDown(recenterButton))
+        {
+            _manualHeightOffset += heightStepUp;
+        }
     }
 
     private void HandleRecenter2()
     {
-        if (_trackingSpace == null || headTransform == null) return;
-        if (!OVRInput.GetDown(recenterButton2)) return;
-        bool buttonPressed = OVRInput.GetDown(recenterButton2) || OVRInput.GetDown(OVRInput.RawButton.X);
-        if (!buttonPressed) return;
-        Vector3 currhead = _trackingSpace.InverseTransformPoint(headTransform.position);
-        Vector3 ts = _trackingSpace.localPosition;
-        float heightOffset = recenterEyeHeightB - currhead.y;
-        
-        ts.y += heightOffset; // Properly shift tracking space up or down
-        _trackingSpace.localPosition = ts; // Fixed CS1612 by assigning whole vector
-
-        _trackingSpaceBaseLocalY = _trackingSpace.localPosition.y;
-        _hasLastHead = false;
-        _lastHeadLocalY = headTransform.localPosition.y;
+        if (_trackingSpace == null) return;
+        if (OVRInput.GetDown(recenterButton2))
+        {
+            _manualHeightOffset -= heightStepDown;
+        }
     }
+
+private void ApplyHeightOffset()
+{
+    Vector3 ts = _trackingSpace.localPosition;
+    ts.y += _manualHeightOffset;
+    _trackingSpace.localPosition = ts;
+
+    // Update base tracking Y if your crouch/gain logic uses it
+    if (_hasTrackingSpaceBaseY)
+    {
+        _trackingSpaceBaseLocalY += _manualHeightOffset;
+    }
+    
+    // Reset offset after applying to base position
+    _manualHeightOffset = 0f; 
+}
 }
